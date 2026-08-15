@@ -1,8 +1,8 @@
 ﻿import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, startWith } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { SuperheroService } from '../../core/services/superhero.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -34,19 +34,11 @@ export class SuperheroListComponent {
   protected readonly searchControl = new FormControl('', { nonNullable: true });
 
   /**
-   * Debounced so typing "batman" fires ONE request instead of six.
-   * distinctUntilChanged additionally skips a request when the text ends up unchanged
-   * (e.g. type a character then immediately delete it).
+   * The search text actually applied to the current result set, as opposed to whatever is
+   * mid-typing in the box. Driven by the debounced stream in the constructor, so it stays in
+   * step with the request that produced `result`.
    */
-  private readonly debouncedSearch = toSignal(
-    this.searchControl.valueChanges.pipe(
-      debounceTime(350),
-      distinctUntilChanged(),
-      takeUntilDestroyed(),
-      startWith(''),
-    ),
-    { initialValue: '' },
-  );
+  private readonly searchTerm = signal('');
 
   protected readonly page = signal(1);
   protected readonly universe = signal('');
@@ -64,13 +56,33 @@ export class SuperheroListComponent {
   protected readonly totalCount = computed(() => this.result()?.totalCount ?? 0);
   protected readonly totalPages = computed(() => this.result()?.totalPages ?? 0);
   protected readonly hasFilters = computed(
-    () => !!this.debouncedSearch() || !!this.universe() || !!this.alignment() || this.minPowerLevel() > 0,
+    () => !!this.searchTerm() || !!this.universe() || !!this.alignment() || this.minPowerLevel() > 0,
   );
 
   constructor() {
-    // Any filter change resets to page 1 - staying on page 4 of a now-2-page result set
-    // would show a confusing empty grid.
-    this.searchControl.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => this.page.set(1));
+    /**
+     * Debounced so typing "batman" fires ONE request instead of six.
+     * distinctUntilChanged additionally skips a request when the text ends up unchanged
+     * (e.g. type a character then immediately delete it).
+     *
+     * This is the only thing that applies a typed search - the template's (search) binding
+     * fires solely on Enter and on the input's native clear "x", so the reload has to be
+     * driven from here or typing would leave the grid unfiltered.
+     */
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((term) => this.applySearch(term));
+
+    this.load();
+  }
+
+  /**
+   * Any filter change resets to page 1 - staying on page 4 of a now-2-page result set
+   * would show a confusing empty grid.
+   */
+  private applySearch(term: string): void {
+    this.searchTerm.set(term);
+    this.page.set(1);
     this.load();
   }
 
@@ -82,7 +94,7 @@ export class SuperheroListComponent {
       .getPaged({
         page: this.page(),
         pageSize: PAGE_SIZE,
-        search: this.debouncedSearch() || undefined,
+        search: this.searchTerm() || undefined,
         universe: this.universe() || undefined,
         alignment: this.alignment() || undefined,
         minPowerLevel: this.minPowerLevel() || undefined,
@@ -107,7 +119,8 @@ export class SuperheroListComponent {
   }
 
   protected onSearchApply(): void {
-    this.load();
+    // Enter (or the input's clear "x") should not wait out the debounce.
+    this.applySearch(this.searchControl.value);
   }
 
   protected goToPage(page: number): void {
@@ -131,7 +144,10 @@ export class SuperheroListComponent {
   }
 
   protected clearFilters(): void {
-    this.searchControl.setValue('');
+    // emitEvent: false - this method loads once at the end itself, and letting the control
+    // emit would queue a second, identical request 350ms later.
+    this.searchControl.setValue('', { emitEvent: false });
+    this.searchTerm.set('');
     this.universe.set('');
     this.alignment.set('');
     this.minPowerLevel.set(0);
