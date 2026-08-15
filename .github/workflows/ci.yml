@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Lets the pipeline be re-run by hand from the Actions tab without an empty commit.
+  workflow_dispatch:
+
+# A newer push to the same branch supersedes an in-flight run, so CI is not queued
+# behind results nobody is waiting for any more.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Quoted everywhere it is used - this folder name genuinely contains a space.
+  SOLUTION: 'Dot Net/DotNetCoreAPI/WebAPISuperheroUniverse/WebAPISuperheroUniverse.sln'
+
+jobs:
+  # ---------------------------------------------------------------------------------------------
+  # Backend: restore -> build -> test
+  #
+  # The 111 xUnit tests are pure in-memory unit tests (no database, no HTTP, no running app), so
+  # they need nothing beyond the SDK. The 234 API integration tests are NOT run here - they drive
+  # the real HTTP API against a seeded SQL Server, which this runner does not have. See the README
+  # for how to run them locally and what would need adding to run them here.
+  # ---------------------------------------------------------------------------------------------
+  backend:
+    name: Backend (.NET)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          # global.json pins the SDK, so local and CI cannot drift apart.
+          global-json-file: global.json
+
+      # Keyed on the lock-ish inputs: any package reference change busts the cache, and the
+      # restore-keys line still gives a warm partial cache when it does.
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', 'global.json') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore "$SOLUTION"
+
+      # --no-restore proves the restore step actually did its job rather than silently
+      # re-running here and masking a broken cache.
+      - name: Build
+        run: dotnet build "$SOLUTION" --configuration Release --no-restore
+
+      - name: Test
+        run: >
+          dotnet test "$SOLUTION"
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=backend-tests.trx"
+          --results-directory TestResults
+
+      # if: always() so results are still published when tests fail - which is exactly when
+      # they are most worth reading.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: TestResults/*.trx
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------------------------
+  # Frontend: install -> build -> test
+  # ---------------------------------------------------------------------------------------------
+  frontend:
+    name: Frontend (Angular)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        # Hardcoded rather than read from a workflow-level env var: the env context is not
+        # reliably available inside `defaults`, and a wrong value here fails every step.
+        working-directory: Angular/angular-22-learning
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          # Built-in npm caching, keyed on the lockfile.
+          cache: npm
+          cache-dependency-path: Angular/angular-22-learning/package-lock.json
+
+      # npm ci, never npm install: it installs exactly what the lockfile says and fails if the
+      # lockfile and package.json have drifted apart, which is what you want in CI.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npx ng build --configuration production
+
+      # Vitest with jsdom - headless, so no browser needs installing on the runner.
+      - name: Test
+        run: npx ng test superhero-universe --watch=false
