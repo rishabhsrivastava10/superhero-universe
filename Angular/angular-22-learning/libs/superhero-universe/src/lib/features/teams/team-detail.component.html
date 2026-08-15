@@ -1,0 +1,191 @@
+@if (loading()) {
+  <div class="su-state">
+    <div class="su-spinner"></div>
+    <p>Loading team…</p>
+  </div>
+} @else if (notFound()) {
+  <div class="su-state">
+    <h2>Team not found</h2>
+    <a class="su-btn" routerLink="/teams">Back to teams</a>
+  </div>
+} @else if (team(); as t) {
+  <section class="team">
+    <a class="team__back" routerLink="/teams">&larr; Back to teams</a>
+
+    <header class="team__head">
+      <div class="team__identity">
+        <span class="team__crest" aria-hidden="true">{{ t.name.charAt(0) }}</span>
+        <div>
+          <h1 class="team__name">{{ t.name }}</h1>
+          <div class="team__tags">
+            <span class="su-badge">{{ t.universe }}</span>
+            @if (t.foundedDate) {
+              <span class="su-badge">Founded {{ t.foundedDate }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      @if (isAdmin()) {
+        <div class="team__admin">
+          <button type="button" class="su-btn" (click)="openAdd()">+ Add Member</button>
+          <button type="button" class="su-btn is-danger" (click)="confirmingDelete.set(true)">
+            Delete team
+          </button>
+        </div>
+      }
+    </header>
+
+    @if (t.description) {
+      <p class="team__description">{{ t.description }}</p>
+    }
+
+    <!-- Statistics -->
+    <div class="stats">
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ t.statistics.memberCount }}</span>
+        <span class="stat-tile__label">Members</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ t.statistics.totalPowerLevel }}</span>
+        <span class="stat-tile__label">Total power</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ t.statistics.averagePowerLevel }}</span>
+        <span class="stat-tile__label">Average power</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile__value">{{ t.statistics.strongestMemberPowerLevel }}</span>
+        <span class="stat-tile__label">
+          @if (t.statistics.strongestMemberName) {
+            Strongest · {{ t.statistics.strongestMemberName }}
+          } @else {
+            Strongest
+          }
+        </span>
+      </div>
+    </div>
+
+    @if (t.statistics.memberCount > 0) {
+      <div class="composition">
+        <span class="composition__label">Composition</span>
+        <div class="composition__bar" role="img"
+             [attr.aria-label]="t.statistics.heroCount + ' heroes, ' + t.statistics.villainCount + ' villains, ' + t.statistics.antiHeroCount + ' anti-heroes'">
+          @if (t.statistics.heroCount) {
+            <span class="composition__seg is-hero"
+                  [style.flex]="t.statistics.heroCount"
+                  [title]="t.statistics.heroCount + ' Hero'"></span>
+          }
+          @if (t.statistics.villainCount) {
+            <span class="composition__seg is-villain"
+                  [style.flex]="t.statistics.villainCount"
+                  [title]="t.statistics.villainCount + ' Villain'"></span>
+          }
+          @if (t.statistics.antiHeroCount) {
+            <span class="composition__seg is-antihero"
+                  [style.flex]="t.statistics.antiHeroCount"
+                  [title]="t.statistics.antiHeroCount + ' Anti-Hero'"></span>
+          }
+        </div>
+        <div class="composition__legend">
+          <span><i class="dot is-hero"></i> {{ t.statistics.heroCount }} Hero</span>
+          <span><i class="dot is-villain"></i> {{ t.statistics.villainCount }} Villain</span>
+          <span><i class="dot is-antihero"></i> {{ t.statistics.antiHeroCount }} Anti-Hero</span>
+        </div>
+      </div>
+    }
+
+    <!-- Members -->
+    <h2 class="section-title">Members</h2>
+
+    @if (t.members.length === 0) {
+      <div class="su-state">
+        <p>This team has no members yet.</p>
+        @if (isAdmin()) {
+          <button type="button" class="su-btn" (click)="openAdd()">Add the first member</button>
+        }
+      </div>
+    } @else {
+      <ul class="members">
+        @for (member of t.members; track member.superheroId) {
+          <li class="member">
+            <a class="member__link" [routerLink]="['/superheroes', member.superheroId]">
+              <hero-avatar class="member__avatar" [name]="member.name" [imageUrl]="member.imageUrl" />
+              <span class="member__info">
+                <span class="member__name">{{ member.name }}</span>
+                @if (member.realName) {
+                  <span class="member__real">{{ member.realName }}</span>
+                }
+              </span>
+            </a>
+
+            <span class="su-badge" [class]="alignmentClass(member.alignment)">
+              {{ member.alignment }}
+            </span>
+
+            <span class="member__power">
+              <strong>{{ member.powerLevel }}</strong> PWR
+            </span>
+
+            <span class="member__joined">joined {{ member.joinedDate }}</span>
+
+            @if (isAdmin()) {
+              <button
+                type="button"
+                class="member__remove"
+                (click)="removeMember(member)"
+                [attr.aria-label]="'Remove ' + member.name + ' from team'"
+                title="Remove from team"
+              >
+                &times;
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <!-- Add member picker -->
+  @if (addOpen()) {
+    <div class="backdrop" (click)="addOpen.set(false)">
+      <div class="panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <h3 class="panel__title">Add member to {{ t.name }}</h3>
+
+        @if (availableHeroes().length === 0) {
+          <p class="panel__empty">Every hero is already on this team.</p>
+        } @else {
+          <ul class="picker">
+            @for (hero of availableHeroes(); track hero.id) {
+              <li>
+                <button type="button" class="picker__item" (click)="addMember(hero.id)">
+                  <hero-avatar class="picker__avatar" [name]="hero.name" [imageUrl]="hero.imageUrl" />
+                  <span class="picker__name">{{ hero.name }}</span>
+                  <span class="su-badge" [class]="alignmentClass(hero.alignment)">
+                    {{ hero.alignment }}
+                  </span>
+                  <span class="picker__power">{{ hero.powerLevel }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+
+        <div class="panel__actions">
+          <button type="button" class="su-btn is-ghost" (click)="addOpen.set(false)">Close</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (confirmingDelete()) {
+    <hero-confirm-dialog
+      title="Delete team?"
+      [message]="
+        'This removes ' + t.name + ' and its membership records. The heroes themselves are not deleted.'
+      "
+      (confirmed)="confirmDelete()"
+      (cancelled)="confirmingDelete.set(false)"
+    />
+  }
+}

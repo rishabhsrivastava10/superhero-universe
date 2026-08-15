@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+﻿import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,6 +7,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { SuperheroService } from '../../core/services/superhero.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
+import { HeroAvatarComponent } from '../../shared/components/hero-avatar.component';
 import {
   ALIGNMENTS,
   PagedResponse,
@@ -18,7 +19,7 @@ const PAGE_SIZE = 8;
 @Component({
   selector: 'hero-superhero-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, ConfirmDialogComponent],
+  imports: [ReactiveFormsModule, RouterLink, ConfirmDialogComponent, HeroAvatarComponent],
   templateUrl: './superhero-list.component.html',
   styleUrl: './superhero-list.component.scss',
 })
@@ -177,12 +178,5 @@ export class SuperheroListComponent {
     return Array.from({ length: this.totalPages() }, (_, i) => i + 1);
   }
 
-  protected initials(name: string): string {
-    return name
-      .split(' ')
-      .map((part) => part[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-  }
 }
+

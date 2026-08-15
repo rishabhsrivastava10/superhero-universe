@@ -9,7 +9,8 @@ export type IconName =
   | 'trophy'
   | 'plus'
   | 'eye'
-  | 'eye-off';
+  | 'eye-off'
+  | 'bolt';
 
 /**
  * Inline SVG icons.
@@ -75,6 +76,9 @@ export type IconName =
         @case ('plus') {
           <path d="M12 5v14" />
           <path d="M5 12h14" />
+        }
+        @case ('bolt') {
+          <path d="M13 2 4.5 13.5H11l-.5 8.5L19.5 10.5H13l0-8.5z" />
         }
         @case ('eye') {
           <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />

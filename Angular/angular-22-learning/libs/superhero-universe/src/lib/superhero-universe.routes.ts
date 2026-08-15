@@ -61,6 +61,24 @@ export const superheroUniverseRoutes: Routes = [
         title: 'Hero | Superhero Universe',
       },
       {
+        path: 'powers',
+        loadComponent: () =>
+          import('./features/powers/power-list.component').then((m) => m.PowerListComponent),
+        title: 'Powers | Superhero Universe',
+      },
+      {
+        path: 'teams',
+        loadComponent: () =>
+          import('./features/teams/team-list.component').then((m) => m.TeamListComponent),
+        title: 'Teams | Superhero Universe',
+      },
+      {
+        path: 'teams/:id',
+        loadComponent: () =>
+          import('./features/teams/team-detail.component').then((m) => m.TeamDetailComponent),
+        title: 'Team | Superhero Universe',
+      },
+      {
         path: 'forbidden',
         loadComponent: () =>
           import('./features/forbidden.component').then((m) => m.ForbiddenComponent),

@@ -399,3 +399,114 @@ END;
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    DECLARE @var nvarchar(max);
+    SELECT @var = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[xtUsers]') AND [c].[name] = N'IsActive');
+    IF @var IS NOT NULL EXEC(N'ALTER TABLE [xtUsers] DROP CONSTRAINT ' + @var + ';');
+    ALTER TABLE [xtUsers] ADD DEFAULT CAST(1 AS bit) FOR [IsActive];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    DECLARE @var1 nvarchar(max);
+    SELECT @var1 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[xtUsers]') AND [c].[name] = N'CreatedAt');
+    IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [xtUsers] DROP CONSTRAINT ' + @var1 + ';');
+    ALTER TABLE [xtUsers] ADD DEFAULT (SYSUTCDATETIME()) FOR [CreatedAt];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    DECLARE @var2 nvarchar(max);
+    SELECT @var2 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[xtSuperheroTeams]') AND [c].[name] = N'JoinedDate');
+    IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [xtSuperheroTeams] DROP CONSTRAINT ' + @var2 + ';');
+    ALTER TABLE [xtSuperheroTeams] ADD DEFAULT (CAST(SYSUTCDATETIME() AS DATE)) FOR [JoinedDate];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    DECLARE @var3 nvarchar(max);
+    SELECT @var3 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[xtSuperheroes]') AND [c].[name] = N'CreatedAt');
+    IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [xtSuperheroes] DROP CONSTRAINT ' + @var3 + ';');
+    ALTER TABLE [xtSuperheroes] ADD DEFAULT (SYSUTCDATETIME()) FOR [CreatedAt];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    DECLARE @var4 nvarchar(max);
+    SELECT @var4 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[xtMissions]') AND [c].[name] = N'Status');
+    IF @var4 IS NOT NULL EXEC(N'ALTER TABLE [xtMissions] DROP CONSTRAINT ' + @var4 + ';');
+    ALTER TABLE [xtMissions] ADD DEFAULT N'Pending' FOR [Status];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    DECLARE @var5 nvarchar(max);
+    SELECT @var5 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[xtMissions]') AND [c].[name] = N'CreatedAt');
+    IF @var5 IS NOT NULL EXEC(N'ALTER TABLE [xtMissions] DROP CONSTRAINT ' + @var5 + ';');
+    ALTER TABLE [xtMissions] ADD DEFAULT (SYSUTCDATETIME()) FOR [CreatedAt];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    DECLARE @var6 nvarchar(max);
+    SELECT @var6 = QUOTENAME([d].[name])
+    FROM [sys].[default_constraints] [d]
+    INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+    WHERE ([d].[parent_object_id] = OBJECT_ID(N'[xtBattles]') AND [c].[name] = N'BattleDate');
+    IF @var6 IS NOT NULL EXEC(N'ALTER TABLE [xtBattles] DROP CONSTRAINT ' + @var6 + ';');
+    ALTER TABLE [xtBattles] ADD DEFAULT (SYSUTCDATETIME()) FOR [BattleDate];
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815124800_AddColumnDefaults'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260815124800_AddColumnDefaults', N'10.0.11');
+END;
+
+COMMIT;
+GO
+

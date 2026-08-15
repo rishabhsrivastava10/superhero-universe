@@ -52,6 +52,17 @@ BASELINING AN EXISTING DATABASE (LEARNED BUILDING THIS PROJECT)
 - Useful sanity check when hand-writing an EF model against an existing schema: point `dotnet ef database update` at a THROWAWAY database, then diff its sys.columns/sys.indexes/sys.foreign_keys/sys.check_constraints against the real one. Any row that appears in one but not the other is a mapping mistake. This caught a genuinely missing index in this project (an FK column that EF indexes by default but the hand-written script had overlooked).
 - EF Core automatically creates a nonclustered index on every foreign key column. Hand-written SQL doesn't - so a hand-rolled schema often has FK columns with no supporting index, which hurts JOIN and cascade-delete performance.
 
+EF CORE DOES NOT GENERATE DATABASE DEFAULT CONSTRAINTS (LEARNED THE HARD WAY IN THIS PROJECT)
+- A hand-written schema often gives columns DEFAULT constraints (CreatedAt DEFAULT SYSUTCDATETIME(), IsActive DEFAULT 1, Status DEFAULT 'Pending'). EF Core emits NONE of these unless you explicitly configure .HasDefaultValueSql("...") or .HasDefaultValue(...) in OnModelCreating.
+- Why it bites: EF sets those values in C# before INSERT, so the app works fine and the omission is invisible. But any INSERT that does NOT go through EF - a seed script, a data migration, a DBA fixing a row by hand - suddenly fails with "Cannot insert the value NULL into column ..." (Msg 515).
+- In this project the EF-generated schema had 7 fewer default constraints than the hand-written one, and every seed script that relied on those defaults broke when replayed against it. The application itself kept working, which is exactly what made it hard to spot.
+- Even with EF setting the value in C#, keeping the DB default is worth it: it is a second line of defence for any write path that bypasses the ORM.
+
+VERIFYING TWO SCHEMAS REALLY MATCH
+- Comparing sys.columns + sys.indexes + sys.foreign_keys + sys.check_constraints feels thorough but is NOT complete - it silently ignores default constraints (and triggers, computed columns, collations, filegroups...).
+- Add sys.default_constraints to any schema diff. Compare on the DEFINITION, not the constraint NAME: EF autogenerates names like DF__xtUsers__Created__12345678 that will never match a hand-named one.
+- Best end-to-end check: rebuild a throwaway database from the deployment script, replay every seed script against it, and confirm both that the scripts run clean AND that the resulting row counts match the real database. A schema diff alone would not have caught the broken INSERTs.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - What's the N+1 problem and how do you detect/fix it with EF Core?
 - Difference between eager, lazy, and explicit loading — trade-offs of each?

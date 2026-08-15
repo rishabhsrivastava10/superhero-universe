@@ -15,13 +15,7 @@
 
     <header class="detail__head">
       <div class="detail__identity">
-        <div class="detail__avatar" aria-hidden="true">
-          @if (h.imageUrl) {
-            <img [src]="h.imageUrl" [alt]="h.name" />
-          } @else {
-            <span>{{ initials(h.name) }}</span>
-          }
-        </div>
+        <hero-avatar class="detail__avatar" [name]="h.name" [imageUrl]="h.imageUrl" />
         <div>
           <h1 class="detail__name">{{ h.name }}</h1>
           @if (h.realName) {
@@ -93,7 +87,12 @@
 
       <!-- Powers -->
       <div class="su-card">
-        <h2 class="panel__title">Powers</h2>
+        <div class="panel__head">
+          <h2 class="panel__title">Powers</h2>
+          @if (isAdmin()) {
+            <button type="button" class="panel__edit" (click)="openPowers()">Manage</button>
+          }
+        </div>
         @if (h.powers.length) {
           <ul class="chips">
             @for (power of h.powers; track power) {
@@ -120,6 +119,41 @@
       </div>
     </div>
   </section>
+
+  <!-- Power assignment (admin) -->
+  @if (powersOpen()) {
+    <div class="backdrop" (click)="powersOpen.set(false)">
+      <div class="power-panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+        <h3 class="power-panel__title">Powers for {{ h.name }}</h3>
+        <p class="power-panel__hint">
+          Tick every power this hero should have. Unticking removes it.
+        </p>
+
+        <ul class="power-picker">
+          @for (power of allPowers(); track power.id) {
+            <li>
+              <label class="power-option" [class.is-selected]="isPowerSelected(power.id)">
+                <input
+                  type="checkbox"
+                  [checked]="isPowerSelected(power.id)"
+                  (change)="togglePower(power.id)"
+                />
+                <span class="power-option__name">{{ power.name }}</span>
+              </label>
+            </li>
+          }
+        </ul>
+
+        <div class="power-panel__actions">
+          <span class="power-panel__count">{{ selectedPowerIds().size }} selected</span>
+          <button type="button" class="su-btn is-ghost" (click)="powersOpen.set(false)">Cancel</button>
+          <button type="button" class="su-btn is-primary" [disabled]="savingPowers()" (click)="savePowers()">
+            {{ savingPowers() ? 'Saving…' : 'Save powers' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   @if (confirmingDelete()) {
     <hero-confirm-dialog

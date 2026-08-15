@@ -108,13 +108,7 @@
       @for (hero of heroes(); track hero.id) {
         <a class="card" [routerLink]="['/superheroes', hero.id]">
           <div class="card__top">
-            <div class="card__avatar" aria-hidden="true">
-              @if (hero.imageUrl) {
-                <img [src]="hero.imageUrl" [alt]="hero.name" loading="lazy" />
-              } @else {
-                <span>{{ initials(hero.name) }}</span>
-              }
-            </div>
+            <hero-avatar class="card__avatar" [name]="hero.name" [imageUrl]="hero.imageUrl" />
 
             <div class="card__actions">
               <span class="su-badge" [class]="alignmentClass(hero.alignment)">

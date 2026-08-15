@@ -1,0 +1,133 @@
+.powers__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.powers__title {
+  font-size: 1.55rem;
+}
+
+.powers__count {
+  margin: 0.3rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.power-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  gap: 1rem;
+}
+
+.power-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--accent);
+  }
+}
+
+.power-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.power-card__name {
+  font-size: 1rem;
+}
+
+.power-card__actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+  }
+
+  &.is-danger:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+}
+
+.power-card__desc {
+  flex: 1;
+  margin: 0 0 0.95rem;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.power-card__desc--none {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.power-card__foot {
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Modal --------------------------------------------------------------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(4 6 20 / 70%);
+  backdrop-filter: blur(2px);
+}
+
+.panel {
+  width: min(460px, 100%);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.panel__title {
+  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
+}
+
+.panel__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}

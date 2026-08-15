@@ -1,0 +1,128 @@
+<section class="teams">
+  <header class="teams__head">
+    <div>
+      <h1 class="teams__title">Teams</h1>
+      <p class="teams__count">
+        @if (loading()) {
+          Loading…
+        } @else {
+          {{ items().length }} {{ items().length === 1 ? 'team' : 'teams' }}
+        }
+      </p>
+    </div>
+
+    <div class="teams__tools">
+      <select
+        class="su-select"
+        [value]="universe()"
+        (change)="onUniverseChange($any($event.target).value)"
+        aria-label="Filter by universe"
+      >
+        <option value="">All universes</option>
+        <option value="Marvel">Marvel</option>
+        <option value="DC">DC</option>
+      </select>
+
+      @if (isAdmin()) {
+        <button type="button" class="su-btn is-primary" (click)="openCreate()">+ Add Team</button>
+      }
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="su-state">
+      <div class="su-spinner"></div>
+      <p>Loading teams…</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="su-state">
+      <p>No teams found.</p>
+    </div>
+  } @else {
+    <div class="team-grid">
+      @for (team of items(); track team.id) {
+        <a class="team-card" [routerLink]="['/teams', team.id]">
+          <div class="team-card__head">
+            <span class="team-card__crest" aria-hidden="true">{{ team.name.charAt(0) }}</span>
+            <span class="su-badge">{{ team.universe }}</span>
+          </div>
+
+          <h2 class="team-card__name">{{ team.name }}</h2>
+
+          @if (team.description) {
+            <p class="team-card__desc">{{ team.description }}</p>
+          }
+
+          <div class="team-card__foot">
+            <span class="team-card__members">
+              <strong>{{ team.memberCount }}</strong>
+              {{ team.memberCount === 1 ? 'member' : 'members' }}
+            </span>
+            @if (team.foundedDate) {
+              <span class="team-card__founded">est. {{ team.foundedDate | date: 'yyyy' }}</span>
+            }
+          </div>
+        </a>
+      }
+    </div>
+  }
+</section>
+
+@if (formOpen()) {
+  <div class="backdrop" (click)="formOpen.set(false)">
+    <div class="panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <h3 class="panel__title">New team</h3>
+
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="su-field">
+          <label class="su-label" for="team-name">Name *</label>
+          <input
+            id="team-name"
+            class="su-input"
+            [class.is-invalid]="invalid('name')"
+            formControlName="name"
+            placeholder="e.g. Night Watch"
+          />
+          @if (invalid('name')) {
+            <p class="su-error">Team name is required.</p>
+          }
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="team-universe">Universe *</label>
+          <input
+            id="team-universe"
+            class="su-input"
+            [class.is-invalid]="invalid('universe')"
+            formControlName="universe"
+            list="team-universe-options"
+          />
+          <datalist id="team-universe-options">
+            <option value="Marvel"></option>
+            <option value="DC"></option>
+          </datalist>
+          @if (invalid('universe')) {
+            <p class="su-error">Universe is required.</p>
+          }
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="team-founded">Founded date</label>
+          <input id="team-founded" type="date" class="su-input" formControlName="foundedDate" />
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="team-desc">Description</label>
+          <textarea id="team-desc" class="su-textarea" formControlName="description"></textarea>
+        </div>
+
+        <div class="panel__actions">
+          <button type="button" class="su-btn is-ghost" (click)="formOpen.set(false)">Cancel</button>
+          <button type="submit" class="su-btn is-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Create team' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

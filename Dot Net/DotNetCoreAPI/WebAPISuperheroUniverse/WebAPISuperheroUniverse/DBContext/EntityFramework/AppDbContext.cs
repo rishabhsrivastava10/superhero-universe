@@ -30,7 +30,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.Username).HasMaxLength(50).IsRequired();
             entity.Property(e => e.Email).HasMaxLength(256).IsRequired();
             entity.Property(e => e.PasswordHash).HasMaxLength(500).IsRequired();
-            entity.Property(e => e.CreatedAt).HasPrecision(3);
+            // Defaults are set in C# too, but keeping them in the database means a raw SQL INSERT
+            // (a seed script, a DBA fixing data) can't accidentally produce a NULL/blank row.
+            entity.Property(e => e.CreatedAt).HasPrecision(3).HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.HasIndex(e => e.Username).IsUnique().HasDatabaseName("UQ_xtUsers_Username");
             entity.HasIndex(e => e.Email).IsUnique().HasDatabaseName("UQ_xtUsers_Email");
         });
@@ -89,7 +92,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.Universe).HasMaxLength(50).IsRequired();
             entity.Property(e => e.Alignment).HasMaxLength(20).IsRequired();
             entity.Property(e => e.ImageUrl).HasMaxLength(500);
-            entity.Property(e => e.CreatedAt).HasPrecision(3);
+            entity.Property(e => e.CreatedAt).HasPrecision(3).HasDefaultValueSql("SYSUTCDATETIME()");
             entity.Property(e => e.UpdatedAt).HasPrecision(3);
             entity.HasIndex(e => e.Name).HasDatabaseName("IX_xtSuperheroes_Name");
             entity.HasIndex(e => new { e.Universe, e.Alignment }).HasDatabaseName("IX_xtSuperheroes_Universe_Alignment")
@@ -130,6 +133,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             entity.ToTable("xtSuperheroTeams");
             entity.HasKey(e => new { e.SuperheroId, e.TeamId }).HasName("PK_xtSuperheroTeams");
+            entity.Property(e => e.JoinedDate).HasDefaultValueSql("CAST(SYSUTCDATETIME() AS DATE)");
             entity.HasOne(e => e.Superhero).WithMany(s => s.SuperheroTeams)
                 .HasForeignKey(e => e.SuperheroId).HasConstraintName("FK_xtSuperheroTeams_xtSuperheroes").OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(e => e.Team).WithMany(t => t.SuperheroTeams)
@@ -149,8 +153,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.Title).HasMaxLength(200).IsRequired();
             entity.Property(e => e.Location).HasMaxLength(150);
             entity.Property(e => e.Difficulty).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.Status).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.CreatedAt).HasPrecision(3);
+            entity.Property(e => e.Status).HasMaxLength(20).IsRequired().HasDefaultValue("Pending");
+            entity.Property(e => e.CreatedAt).HasPrecision(3).HasDefaultValueSql("SYSUTCDATETIME()");
             entity.HasIndex(e => e.Status).HasDatabaseName("IX_xtMissions_Status");
         });
 
@@ -170,7 +174,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.ToTable("xtBattles", t =>
                 t.HasCheckConstraint("CK_xtBattles_DistinctHeroes", "[Hero1Id] <> [Hero2Id]"));
             entity.HasKey(e => e.Id).HasName("PK_xtBattles");
-            entity.Property(e => e.BattleDate).HasPrecision(3);
+            entity.Property(e => e.BattleDate).HasPrecision(3).HasDefaultValueSql("SYSUTCDATETIME()");
 
             // Three FKs converge on xtSuperheroes - SQL Server forbids cascading deletes here
             // (multiple cascade paths), so all three must be Restrict, matching the raw SQL's NO ACTION.

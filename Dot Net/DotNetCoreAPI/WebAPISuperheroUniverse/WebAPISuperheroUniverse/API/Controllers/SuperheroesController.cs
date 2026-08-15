@@ -85,6 +85,31 @@ public sealed class SuperheroesController(ISuperheroService superheroService) : 
         };
     }
 
+    /// <summary>
+    /// Replaces this hero's entire power set. Nested under the hero because the assignment
+    /// belongs to the hero, not to the power catalogue.
+    /// </summary>
+    [HttpPut("{id:int}/powers")]
+    [Authorize(Roles = nameof(EnumRoleName.Admin))]
+    [ProducesResponseType(typeof(IReadOnlyList<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ModelErrorResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AssignPowers(
+        int id,
+        ModelAssignPowersRequest request,
+        [FromServices] IPowerService powerService,
+        CancellationToken cancellationToken)
+    {
+        var (outcome, powers) = await powerService.AssignToSuperheroAsync(id, request, cancellationToken);
+
+        return outcome switch
+        {
+            EnumCrudOutcome.Success => Ok(powers),
+            EnumCrudOutcome.NotFound => NotFound(Error(StatusCodes.Status404NotFound,
+                "The superhero or one of the supplied power ids was not found.")),
+            _ => BadRequest(Error(StatusCodes.Status400BadRequest, "Could not assign powers.")),
+        };
+    }
+
     private static ModelErrorResponse Error(int statusCode, string message) => new()
     {
         StatusCode = statusCode,

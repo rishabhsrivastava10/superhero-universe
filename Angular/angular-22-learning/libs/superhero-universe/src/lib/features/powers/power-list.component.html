@@ -1,0 +1,114 @@
+<section class="powers">
+  <header class="powers__head">
+    <div>
+      <h1 class="powers__title">Powers</h1>
+      <p class="powers__count">
+        @if (loading()) {
+          Loading…
+        } @else {
+          {{ items().length }} powers · {{ assignedCount() }} in use
+        }
+      </p>
+    </div>
+
+    @if (isAdmin()) {
+      <button type="button" class="su-btn is-primary" (click)="openCreate()">+ Add Power</button>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="su-state">
+      <div class="su-spinner"></div>
+      <p>Loading powers…</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="su-state">
+      <p>No powers defined yet.</p>
+    </div>
+  } @else {
+    <div class="power-grid">
+      @for (power of items(); track power.id) {
+        <div class="power-card">
+          <div class="power-card__head">
+            <h2 class="power-card__name">{{ power.name }}</h2>
+            @if (isAdmin()) {
+              <div class="power-card__actions">
+                <button type="button" class="icon-btn" (click)="openEdit(power)" [attr.aria-label]="'Edit ' + power.name" title="Edit">
+                  ✎
+                </button>
+                <button
+                  type="button"
+                  class="icon-btn is-danger"
+                  (click)="pendingDelete.set(power)"
+                  [attr.aria-label]="'Delete ' + power.name"
+                  title="Delete"
+                >
+                  &times;
+                </button>
+              </div>
+            }
+          </div>
+
+          @if (power.description) {
+            <p class="power-card__desc">{{ power.description }}</p>
+          } @else {
+            <p class="power-card__desc power-card__desc--none">No description.</p>
+          }
+
+          <div class="power-card__foot">
+            <span class="su-badge" [class.is-hero]="power.superheroCount > 0">
+              {{ power.superheroCount }}
+              {{ power.superheroCount === 1 ? 'hero' : 'heroes' }}
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+<!-- Create / edit modal -->
+@if (formOpen()) {
+  <div class="backdrop" (click)="closeForm()">
+    <div class="panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <h3 class="panel__title">{{ editing() ? 'Edit power' : 'New power' }}</h3>
+
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="su-field">
+          <label class="su-label" for="power-name">Name *</label>
+          <input
+            id="power-name"
+            class="su-input"
+            [class.is-invalid]="invalidName()"
+            formControlName="name"
+            placeholder="e.g. Telekinesis"
+          />
+          @if (invalidName()) {
+            <p class="su-error">Power name is required (max 100 characters).</p>
+          }
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="power-desc">Description</label>
+          <textarea id="power-desc" class="su-textarea" formControlName="description"></textarea>
+        </div>
+
+        <div class="panel__actions">
+          <button type="button" class="su-btn is-ghost" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="su-btn is-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Save' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (pendingDelete(); as power) {
+  <hero-confirm-dialog
+    title="Delete power?"
+    [message]="'This will permanently remove ' + power.name + '.'"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}
