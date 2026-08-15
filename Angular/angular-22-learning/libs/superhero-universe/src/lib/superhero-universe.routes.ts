@@ -24,7 +24,19 @@ export const superheroUniverseRoutes: Routes = [
     loadComponent: () => import('./layout/shell.component').then((m) => m.ShellComponent),
     canActivate: [authGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'superheroes' },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+        title: 'Dashboard | Superhero Universe',
+      },
+      {
+        path: 'rankings',
+        loadComponent: () =>
+          import('./features/rankings/rankings.component').then((m) => m.RankingsComponent),
+        title: 'Rankings | Superhero Universe',
+      },
       {
         path: 'superheroes',
         loadComponent: () =>

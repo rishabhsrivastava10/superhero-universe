@@ -71,6 +71,7 @@ builder.Services.AddSingleton<IBattleVarianceProvider, ClsBattleVarianceProvider
 builder.Services.AddSingleton<ClsBattleCalculator>();
 
 builder.Services.AddScoped<IMissionService, MissionService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddSingleton<IMissionRollProvider, ClsMissionRollProvider>();
 builder.Services.AddSingleton<ClsMissionCalculator>();
 

@@ -1,0 +1,119 @@
+<section class="rankings">
+  <header class="rankings__head">
+    <div>
+      <h1 class="rankings__title">Rankings</h1>
+      <p class="rankings__subtitle">
+        Ranked by {{ fieldLabel().toLowerCase() }}, straight from the database.
+      </p>
+    </div>
+  </header>
+
+  <!-- Filters in one row above the data -->
+  <div class="controls">
+    <div class="controls__group" role="group" aria-label="Rank by attribute">
+      <span class="controls__label">Rank by</span>
+      <select
+        class="su-select"
+        [value]="sortBy()"
+        (change)="setSort($any($event.target).value)"
+        aria-label="Rank by attribute"
+      >
+        @for (field of fields; track field.key) {
+          <option [value]="field.key">{{ field.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Universe">
+      @for (s of scopes; track s.key) {
+        <button
+          type="button"
+          class="tab"
+          role="tab"
+          [class.is-active]="scope() === s.key"
+          [attr.aria-selected]="scope() === s.key"
+          (click)="scope.set(s.key)"
+        >
+          {{ s.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="su-state">
+      <div class="su-spinner"></div>
+      <p>Loading rankings…</p>
+    </div>
+  } @else if (entries().length === 0) {
+    <div class="su-state">
+      <p>No heroes in this ranking.</p>
+    </div>
+  } @else {
+    <!-- A table, so the data is readable without relying on the bars -->
+    <table class="table">
+      <caption class="table__caption">
+        Top {{ entries().length }} by {{ fieldLabel().toLowerCase() }}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col" class="table__rank">#</th>
+          <th scope="col">Superhero</th>
+          <th scope="col" class="table__hide-sm">Universe</th>
+          <th scope="col" class="table__hide-sm">Alignment</th>
+          <th scope="col" class="table__num">{{ fieldLabel() }}</th>
+          <th scope="col" class="table__hide-sm table__num">Record</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (entry of entries(); track entry.id) {
+          <tr [class.is-podium]="entry.rank <= 3">
+            <td class="table__rank">
+              <span class="rank-chip" [class]="'is-rank-' + entry.rank">{{ entry.rank }}</span>
+            </td>
+
+            <td>
+              <a class="hero-cell" [routerLink]="['/superheroes', entry.id]">
+                <hero-avatar class="hero-cell__avatar" [name]="entry.name" [imageUrl]="entry.imageUrl" />
+                <span class="hero-cell__text">
+                  <span class="hero-cell__name">{{ entry.name }}</span>
+                  @if (entry.realName) {
+                    <span class="hero-cell__real">{{ entry.realName }}</span>
+                  }
+                </span>
+              </a>
+            </td>
+
+            <td class="table__hide-sm">
+              <span class="su-badge">{{ entry.universe }}</span>
+            </td>
+
+            <td class="table__hide-sm">
+              <span class="su-badge" [class]="alignmentClass(entry.alignment)">{{ entry.alignment }}</span>
+            </td>
+
+            <td class="table__num">
+              <span class="value-cell">
+                <span class="value-cell__number">{{ entry.value }}</span>
+                <span class="value-cell__track">
+                  <span class="value-cell__fill" [style.width.%]="barWidth(entry.value)"></span>
+                </span>
+              </span>
+            </td>
+
+            <td class="table__hide-sm table__num">
+              @if (entry.totalBattles > 0) {
+                <span class="record">
+                  {{ entry.battlesWon }}/{{ entry.totalBattles }}
+                  <span class="record__rate">{{ winRate(entry) }}%</span>
+                </span>
+              } @else {
+                <span class="record__none">—</span>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

@@ -1,0 +1,192 @@
+@if (loading()) {
+  <div class="su-state">
+    <div class="su-spinner"></div>
+    <p>Loading dashboard…</p>
+  </div>
+} @else if (failed()) {
+  <div class="su-state">
+    <p>Could not load the dashboard.</p>
+    <button type="button" class="su-btn" (click)="load()">Try again</button>
+  </div>
+} @else if (data(); as d) {
+  <section class="dash">
+    <header class="dash__head">
+      <h1 class="dash__title">Dashboard</h1>
+      <p class="dash__subtitle">A live view of the universe.</p>
+    </header>
+
+    <!-- ---- KPI row: single headline numbers, no plot needed ---- -->
+    <div class="kpis">
+      <a class="kpi" routerLink="/superheroes">
+        <span class="kpi__value">{{ d.totals.superheroes }}</span>
+        <span class="kpi__label">Superheroes</span>
+        <span class="kpi__sub">{{ d.totals.marvelHeroes }} Marvel · {{ d.totals.dcHeroes }} DC</span>
+      </a>
+
+      <a class="kpi" routerLink="/battles">
+        <span class="kpi__value">{{ d.totals.battles }}</span>
+        <span class="kpi__label">Battles fought</span>
+        <span class="kpi__sub">across the roster</span>
+      </a>
+
+      <a class="kpi" routerLink="/teams">
+        <span class="kpi__value">{{ d.totals.teams }}</span>
+        <span class="kpi__label">Teams</span>
+        <span class="kpi__sub">{{ d.totals.powers }} powers catalogued</span>
+      </a>
+
+      <a class="kpi" routerLink="/missions">
+        <span class="kpi__value">{{ d.totals.missions }}</span>
+        <span class="kpi__label">Missions</span>
+        <span class="kpi__sub">
+          @if (missionSuccessRate() !== null) {
+            {{ missionSuccessRate() }}% success rate
+          } @else {
+            none attempted yet
+          }
+        </span>
+      </a>
+    </div>
+
+    <!-- ---- Charts ---- -->
+    <div class="panels">
+      <!-- Horizontal bars: comparing magnitude across a handful of named categories.
+           Every bar is directly labelled, so identity never depends on colour alone. -->
+      <section class="panel">
+        <h2 class="panel__title">Heroes by universe</h2>
+        @if (heroesByUniverse().length === 0) {
+          <p class="panel__empty">No data.</p>
+        } @else {
+          <ul class="bars">
+            @for (slice of heroesByUniverse(); track slice.label) {
+              <li class="bar" [attr.title]="slice.label + ': ' + slice.value + ' heroes (' + slice.sharePercent + '%)'">
+                <span class="bar__label">
+                  <i class="bar__swatch" [style.background]="slice.color" aria-hidden="true"></i>
+                  {{ slice.label }}
+                </span>
+                <span class="bar__track">
+                  <span class="bar__fill" [style.width.%]="slice.widthPercent" [style.background]="slice.color"></span>
+                </span>
+                <span class="bar__value">{{ slice.value }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="panel">
+        <h2 class="panel__title">Heroes by alignment</h2>
+        @if (heroesByAlignment().length === 0) {
+          <p class="panel__empty">No data.</p>
+        } @else {
+          <ul class="bars">
+            @for (slice of heroesByAlignment(); track slice.label) {
+              <li class="bar" [attr.title]="slice.label + ': ' + slice.value + ' heroes (' + slice.sharePercent + '%)'">
+                <span class="bar__label">
+                  <i class="bar__swatch" [style.background]="slice.color" aria-hidden="true"></i>
+                  {{ slice.label }}
+                </span>
+                <span class="bar__track">
+                  <span class="bar__fill" [style.width.%]="slice.widthPercent" [style.background]="slice.color"></span>
+                </span>
+                <span class="bar__value">{{ slice.value }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <!-- ---- Top heroes ---- -->
+      <section class="panel">
+        <h2 class="panel__title">Strongest heroes</h2>
+        <ol class="rank-list">
+          @for (hero of d.topSuperheroes; track hero.id) {
+            <li class="rank-row">
+              <a class="rank-row__link" [routerLink]="['/superheroes', hero.id]">
+                <hero-avatar class="rank-row__avatar" [name]="hero.name" [imageUrl]="hero.imageUrl" />
+                <span class="rank-row__name">{{ hero.name }}</span>
+              </a>
+              <span class="rank-row__value">{{ hero.powerLevel }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+
+      <!-- ---- Most victorious ---- -->
+      <section class="panel">
+        <h2 class="panel__title">Most victorious</h2>
+        @if (d.mostVictorious.length === 0) {
+          <p class="panel__empty">No battles fought yet.</p>
+        } @else {
+          <ol class="rank-list">
+            @for (hero of d.mostVictorious; track hero.id) {
+              <li class="rank-row">
+                <a class="rank-row__link" [routerLink]="['/superheroes', hero.id]">
+                  <hero-avatar class="rank-row__avatar" [name]="hero.name" [imageUrl]="hero.imageUrl" />
+                  <span class="rank-row__name">{{ hero.name }}</span>
+                </a>
+                <span class="rank-row__meta">{{ winRate(hero) }}% win</span>
+                <span class="rank-row__value">{{ hero.battlesWon }}</span>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+
+      <!-- ---- Largest teams ---- -->
+      <section class="panel">
+        <h2 class="panel__title">Largest teams</h2>
+        @if (d.largestTeams.length === 0) {
+          <p class="panel__empty">No teams yet.</p>
+        } @else {
+          <ol class="rank-list">
+            @for (team of d.largestTeams; track team.id) {
+              <li class="rank-row">
+                <a class="rank-row__link" [routerLink]="['/teams', team.id]">
+                  <span class="rank-row__crest" aria-hidden="true">{{ team.name.charAt(0) }}</span>
+                  <span class="rank-row__name">{{ team.name }}</span>
+                </a>
+                <span class="rank-row__meta">{{ team.totalPowerLevel }} total</span>
+                <span class="rank-row__value">{{ team.memberCount }}</span>
+              </li>
+            }
+          </ol>
+        }
+      </section>
+
+      <!-- ---- Recent battles ---- -->
+      <section class="panel panel--wide">
+        <h2 class="panel__title">Recent battles</h2>
+        @if (d.recentBattles.length === 0) {
+          <p class="panel__empty">No battles fought yet.</p>
+        } @else {
+          <ul class="battles">
+            @for (battle of d.recentBattles; track battle.id) {
+              <li class="battle-row">
+                <span class="battle-row__side">
+                  <hero-avatar class="battle-row__avatar" [name]="battle.hero1Name" [imageUrl]="battle.hero1ImageUrl" />
+                  <span class="battle-row__name" [class.is-winner]="battle.winnerName === battle.hero1Name">
+                    {{ battle.hero1Name }}
+                  </span>
+                </span>
+
+                <span class="battle-row__score">
+                  <strong [class.is-winner]="battle.winnerName === battle.hero1Name">{{ battle.hero1Score }}</strong>
+                  <span class="battle-row__dash">–</span>
+                  <strong [class.is-winner]="battle.winnerName === battle.hero2Name">{{ battle.hero2Score }}</strong>
+                </span>
+
+                <span class="battle-row__side battle-row__side--right">
+                  <span class="battle-row__name" [class.is-winner]="battle.winnerName === battle.hero2Name">
+                    {{ battle.hero2Name }}
+                  </span>
+                  <hero-avatar class="battle-row__avatar" [name]="battle.hero2Name" [imageUrl]="battle.hero2ImageUrl" />
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  </section>
+}

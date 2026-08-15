@@ -1,0 +1,307 @@
+.dash__head {
+  margin-bottom: 1.5rem;
+}
+
+.dash__title {
+  font-size: 1.55rem;
+}
+
+.dash__subtitle {
+  margin: 0.3rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+/* ---- KPI row ------------------------------------------------------------- */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.2rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease;
+
+  &:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+}
+
+/* The hero number: the headline IS the visualisation, no plot needed. */
+.kpi__value {
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi__label {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.kpi__sub {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* ---- Panels -------------------------------------------------------------- */
+.panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.panel {
+  padding: 1.25rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel--wide {
+  grid-column: 1 / -1;
+}
+
+.panel__title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.1rem;
+}
+
+.panel__empty {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-style: italic;
+}
+
+/* ---- Horizontal bars ----------------------------------------------------- */
+.bars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: minmax(72px, auto) 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.bar__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  /* Text tokens, never the series colour - the swatch beside it carries identity. */
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.bar__swatch {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.bar__track {
+  height: 9px;
+  background: var(--bg-app);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bar__fill {
+  display: block;
+  height: 100%;
+  /* 4px rounded data-end, anchored flat to the baseline at the start. */
+  border-radius: 0 4px 4px 0;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bar__value {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+}
+
+/* ---- Ranked lists -------------------------------------------------------- */
+.rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  counter-reset: rank;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  counter-increment: rank;
+
+  &::before {
+    content: counter(rank);
+    width: 1.2rem;
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+  }
+}
+
+.rank-row__link {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1;
+  min-width: 0;
+
+  &:hover .rank-row__name {
+    color: var(--text-primary);
+  }
+}
+
+.rank-row__avatar {
+  --avatar-size: 30px;
+  --avatar-radius: 8px;
+  --avatar-font-size: 0.62rem;
+}
+
+.rank-row__crest {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.rank-row__name {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-row__meta {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.rank-row__value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.2ch;
+  text-align: right;
+}
+
+/* ---- Recent battles ------------------------------------------------------ */
+.battles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.5rem;
+}
+
+.battle-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.battle-row__side {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+
+  &--right {
+    justify-content: flex-end;
+  }
+}
+
+.battle-row__avatar {
+  --avatar-size: 26px;
+  --avatar-radius: 7px;
+  --avatar-font-size: 0.58rem;
+}
+
+.battle-row__name {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.is-winner {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+}
+
+.battle-row__score {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-variant-numeric: tabular-nums;
+
+  strong {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+
+    &.is-winner {
+      color: var(--accent-strong);
+    }
+  }
+}
+
+.battle-row__dash {
+  color: var(--text-muted);
+}

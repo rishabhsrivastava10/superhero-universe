@@ -63,6 +63,23 @@ VERIFYING TWO SCHEMAS REALLY MATCH
 - Add sys.default_constraints to any schema diff. Compare on the DEFINITION, not the constraint NAME: EF autogenerates names like DF__xtUsers__Created__12345678 that will never match a hand-named one.
 - Best end-to-end check: rebuild a throwaway database from the deployment script, replay every seed script against it, and confirm both that the scripts run clean AND that the resulting row counts match the real database. A schema diff alone would not have caught the broken INSERTs.
 
+FILTERING / ORDERING A CONSTRUCTOR PROJECTION (RUNTIME FAILURE, NOT COMPILE ERROR)
+- This compiles fine and throws at runtime:
+      .GroupBy(h => h.Universe)
+      .Select(g => new ModelChartSlice(g.Key, g.Count()))
+      .OrderByDescending(s => s.Value)      // <-- "could not be translated"
+  EF Core cannot see through a constructor call, so it cannot map s.Value back to COUNT(*) and gives up on translating the whole query.
+- Same trap applies to .Where() after projecting into a record/class constructor, e.g. .Select(h => new Dto(...)).Where(x => x.BattlesWon > 0).
+- Fix: project to an ANONYMOUS type (EF can see its members), do the Where/OrderBy/Take in SQL, then map to the DTO in memory after ToListAsync:
+      var rows = await q.Select(g => new { Label = g.Key, Value = g.Count() })
+                        .OrderByDescending(x => x.Value).ToListAsync();
+      var dto  = rows.Select(x => new ModelChartSlice(x.Label, x.Value)).ToList();
+- Why it is easy to ship: the compiler is happy, so it only fails when that endpoint is first called. Any query using this shape needs an actual run, not just a build.
+
+BUILDING A DASHBOARD OF AGGREGATES
+- Run each aggregate as its own COUNT/GROUP BY query rather than one big join. Joining unrelated one-to-many aggregates multiplies rows together and silently inflates every count (the classic "fan-out" bug).
+- Verify dashboard numbers against the real endpoints in tests - e.g. assert the dashboard's hero total equals /superheroes totalCount, and that marvel + dc + other sums to the total. An aggregate that drifts from its source is invisible by inspection.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - What's the N+1 problem and how do you detect/fix it with EF Core?
 - Difference between eager, lazy, and explicit loading — trade-offs of each?

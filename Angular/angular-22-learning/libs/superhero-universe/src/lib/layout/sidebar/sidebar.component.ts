@@ -6,7 +6,6 @@ interface NavItem {
   label: string;
   path: string;
   icon: IconName;
-  comingSoon?: boolean;
 }
 
 @Component({
@@ -17,14 +16,13 @@ interface NavItem {
   styleUrl: './sidebar.component.scss',
 })
 export class SidebarComponent {
-  // Items flagged comingSoon are rendered disabled - they land in Phases 7-10.
   protected readonly navItems: NavItem[] = [
+    { label: 'Dashboard', path: '/dashboard', icon: 'chart' },
     { label: 'All Heroes', path: '/superheroes', icon: 'grid' },
     { label: 'Battle', path: '/battles', icon: 'swords' },
+    { label: 'Missions', path: '/missions', icon: 'target' },
+    { label: 'Rankings', path: '/rankings', icon: 'trophy' },
     { label: 'Powers', path: '/powers', icon: 'bolt' },
     { label: 'Teams', path: '/teams', icon: 'users' },
-    { label: 'Missions', path: '/missions', icon: 'target' },
-    { label: 'Dashboard', path: '/dashboard', icon: 'chart', comingSoon: true },
-    { label: 'Rankings', path: '/rankings', icon: 'trophy', comingSoon: true },
   ];
 }
