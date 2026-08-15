@@ -45,6 +45,13 @@ PERFORMANCE PRACTICES
 - Avoid loading entire tables into memory to filter/page in C# — let the database do filtering/paging (Where/Skip/Take translated to SQL).
 - Compiled queries (EF.CompileAsyncQuery) can help in very hot, repeated query paths, though usually unnecessary at this project's scale.
 
+BASELINING AN EXISTING DATABASE (LEARNED BUILDING THIS PROJECT)
+- Scenario: a database already exists (created by hand-written SQL scripts, or inherited from another team) and you're introducing EF Core migrations to it afterwards. Running `dotnet ef database update` fails, because the initial migration tries to CREATE TABLE objects that already exist.
+- Fix ("baselining"): create the `__EFMigrationsHistory` table and INSERT a row for the initial migration (MigrationId + ProductVersion) WITHOUT running the migration's SQL. EF then treats the database as already up to date and only applies FUTURE migrations.
+- The MigrationId must match the migration's folder/file name exactly (e.g. `20260815103422_InitialCreate`), otherwise EF still considers it pending.
+- Useful sanity check when hand-writing an EF model against an existing schema: point `dotnet ef database update` at a THROWAWAY database, then diff its sys.columns/sys.indexes/sys.foreign_keys/sys.check_constraints against the real one. Any row that appears in one but not the other is a mapping mistake. This caught a genuinely missing index in this project (an FK column that EF indexes by default but the hand-written script had overlooked).
+- EF Core automatically creates a nonclustered index on every foreign key column. Hand-written SQL doesn't - so a hand-rolled schema often has FK columns with no supporting index, which hurts JOIN and cascade-delete performance.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - What's the N+1 problem and how do you detect/fix it with EF Core?
 - Difference between eager, lazy, and explicit loading — trade-offs of each?

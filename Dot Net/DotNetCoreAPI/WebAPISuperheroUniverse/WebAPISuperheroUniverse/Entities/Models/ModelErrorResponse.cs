@@ -1,4 +1,4 @@
-namespace WebAPISuperheroUniverse.Models;
+namespace WebAPISuperheroUniverse.Entities.Models;
 
 public sealed class ModelErrorResponse
 {

@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="CommonAPI/CommonAPI.csproj" />
-  <Project Path="WebAPISuperheroUniverse/WebAPISuperheroUniverse.csproj" />
-</Solution>

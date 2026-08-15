@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
-using WebAPISuperheroUniverse.Models;
+using WebAPISuperheroUniverse.Entities.Models;
 
-namespace WebAPISuperheroUniverse.Middleware;
+namespace WebAPISuperheroUniverse.API.Middleware;
 
 public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {

@@ -1,10 +1,15 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
-using WebAPISuperheroUniverse.Middleware;
+using WebAPISuperheroUniverse.API.Middleware;
+using WebAPISuperheroUniverse.DBContext.EntityFramework;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, services, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

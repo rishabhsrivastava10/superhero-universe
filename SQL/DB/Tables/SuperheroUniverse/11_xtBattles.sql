@@ -41,3 +41,8 @@ GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_xtBattles_Hero2Id')
     CREATE NONCLUSTERED INDEX IX_xtBattles_Hero2Id ON dbo.xtBattles (Hero2Id);
 GO
+
+-- Supports "battles won by this hero" lookups (rankings/win-rate stats).
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_xtBattles_WinnerId')
+    CREATE NONCLUSTERED INDEX IX_xtBattles_WinnerId ON dbo.xtBattles (WinnerId);
+GO

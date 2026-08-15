@@ -1,3 +1,8 @@
+-- HISTORICAL / DESIGN REFERENCE ONLY - not the authoritative schema.
+-- EF Core migrations own the schema; see DB\README.md. For a real deployment use
+-- Tables\SuperheroUniverse\_GeneratedFromEfMigrations\SuperheroUniverseDb_Schema.sql instead.
+-- Do NOT add new schema changes to these scripts - they won't reach the EF model.
+--
 -- Runs every table script in dependency order (parents before children).
 -- Run via: sqlcmd -S <server> -E -i 12_RunAllTables.sql
 -- (or, in SSMS, enable Query > SQLCMD Mode first, then execute this file)

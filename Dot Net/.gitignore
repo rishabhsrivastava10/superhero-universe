@@ -6,8 +6,8 @@ obj/
 ## Serilog file sink output
 Logs/
 
-## Published API output (regenerate with dotnet publish - see Publish/start-api.ps1)
-DotNetCoreAPI/Publish/*/
+## Published API output (regenerate with dotnet publish - see start-api.ps1)
+Publish/
 
 
 ## Visual Studio / Rider
