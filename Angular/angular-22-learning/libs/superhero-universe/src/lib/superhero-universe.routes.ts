@@ -67,6 +67,14 @@ export const superheroUniverseRoutes: Routes = [
         title: 'Powers | Superhero Universe',
       },
       {
+        path: 'battles',
+        loadComponent: () =>
+          import('./features/battles/battle-simulator.component').then(
+            (m) => m.BattleSimulatorComponent,
+          ),
+        title: 'Battle Simulator | Superhero Universe',
+      },
+      {
         path: 'teams',
         loadComponent: () =>
           import('./features/teams/team-list.component').then((m) => m.TeamListComponent),

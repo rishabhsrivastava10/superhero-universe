@@ -37,6 +37,19 @@ WHAT TO PRIORITIZE (ESPECIALLY FOR THIS PROJECT)
 - Auth flows: registration validation, duplicate username/email handling (409), login failure paths.
 - Avoid writing trivial tests just to inflate a coverage number (e.g. testing that a DTO's properties can be set) — focus effort where real logic/bugs live.
 
+MAKING RANDOMNESS TESTABLE (APPLIED IN THIS PROJECT'S BATTLE SIMULATOR)
+- Calling Random.Shared directly inside business logic makes that logic untestable: you can never assert an exact outcome, so the best you can do is loose range checks.
+- Fix: put the randomness behind a tiny interface (here IBattleVarianceProvider with a single NextVariance() method) and inject it. Production registers the real implementation; tests inject a fixed-value stub and get fully deterministic results, so you can assert exact scores.
+- The same trick applies to DateTime.Now (inject an IClock/TimeProvider), Guid.NewGuid(), and anything else non-deterministic. .NET 8+ ships TimeProvider specifically for the clock case.
+- Random.Shared is thread-safe; a single shared `new Random()` instance is NOT, and concurrent calls can return duplicate/zero values. Use Random.Shared, or one Random per thread.
+
+TESTING PROBABILISTIC BEHAVIOUR WITHOUT A STUB
+- You can still assert useful things end-to-end without controlling the seed:
+  * Invariants that must ALWAYS hold - e.g. the winner is whoever has the higher score; the loser is the other combatant; scores stay within 0-100.
+  * Outcomes that variance must never flip - a hero with an overwhelming attribute advantage should win 12/12 runs. If that ever fails, the variance range is too wide.
+  * Outcomes that variance SHOULD flip - two near-identical heroes should not produce the same winner 20/20 times, and repeated identical matchups should not produce identical scores. This is what proves the randomness is actually wired in rather than silently stubbed out.
+- Storing a computed result matters too: fetching a historical record must return the SAVED scores, not re-run the calculation. Re-simulating would silently rewrite history. Worth an explicit test.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - Explain the testing pyramid and why E2E-heavy suites are usually a problem.
 - What's the difference between a mock and a stub?

@@ -63,6 +63,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISuperheroService, SuperheroService>();
 builder.Services.AddScoped<IPowerService, PowerService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IBattleService, BattleService>();
+
+// The battle algorithm is stateless, so a singleton is fine. Registering the variance provider
+// separately is what makes the calculator deterministic under test.
+builder.Services.AddSingleton<IBattleVarianceProvider, ClsBattleVarianceProvider>();
+builder.Services.AddSingleton<ClsBattleCalculator>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<ClsRegisterRequestValidator>();
 

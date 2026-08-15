@@ -1,0 +1,212 @@
+<section class="arena">
+  <header class="arena__head">
+    <div>
+      <h1 class="arena__title">Battle Simulator</h1>
+      <p class="arena__subtitle">
+        Pick two combatants. The outcome is calculated on the server from their attributes.
+      </p>
+    </div>
+    <div class="arena__tools">
+      <button type="button" class="su-btn is-ghost" (click)="randomise()">Random matchup</button>
+      @if (hero1() || hero2()) {
+        <button type="button" class="su-btn is-ghost" (click)="clear()">Clear</button>
+      }
+    </div>
+  </header>
+
+  <!-- ---- Combatant selection ---- -->
+  <div class="matchup">
+    <!-- Side 1 -->
+    <button type="button" class="slot" [class.is-filled]="!!hero1()" (click)="openPicker(1)">
+      @if (hero1(); as h) {
+        <hero-avatar class="slot__avatar" [name]="h.name" [imageUrl]="h.imageUrl" />
+        <span class="slot__name">{{ h.name }}</span>
+        <span class="su-badge" [class]="alignmentClass(h.alignment)">{{ h.alignment }}</span>
+        <span class="slot__power">{{ h.powerLevel }} <small>PWR</small></span>
+        <span class="slot__change">Change</span>
+      } @else {
+        <span class="slot__empty" aria-hidden="true">+</span>
+        <span class="slot__prompt">Choose hero one</span>
+      }
+    </button>
+
+    <div class="versus">
+      <span class="versus__text">VS</span>
+      @if (hero1() && hero2()) {
+        <button type="button" class="versus__swap" (click)="swap()" title="Swap sides" aria-label="Swap sides">
+          &#8646;
+        </button>
+      }
+    </div>
+
+    <!-- Side 2 -->
+    <button type="button" class="slot" [class.is-filled]="!!hero2()" (click)="openPicker(2)">
+      @if (hero2(); as h) {
+        <hero-avatar class="slot__avatar" [name]="h.name" [imageUrl]="h.imageUrl" />
+        <span class="slot__name">{{ h.name }}</span>
+        <span class="su-badge" [class]="alignmentClass(h.alignment)">{{ h.alignment }}</span>
+        <span class="slot__power">{{ h.powerLevel }} <small>PWR</small></span>
+        <span class="slot__change">Change</span>
+      } @else {
+        <span class="slot__empty" aria-hidden="true">+</span>
+        <span class="slot__prompt">Choose hero two</span>
+      }
+    </button>
+  </div>
+
+  <div class="arena__action">
+    <button type="button" class="su-btn is-primary fight-btn" [disabled]="!canFight() || simulating()" (click)="fight()">
+      @if (simulating()) {
+        Simulating…
+      } @else {
+        SIMULATE BATTLE
+      }
+    </button>
+    @if (!canFight() && !simulating()) {
+      <p class="arena__hint">Select two different superheroes to begin.</p>
+    }
+  </div>
+
+  <!-- ---- Result ---- -->
+  @if (result(); as r) {
+    <div class="result">
+      <div class="result__banner" [class.is-draw]="r.isDraw">
+        @if (r.isDraw) {
+          <span class="result__crown" aria-hidden="true">=</span>
+          <span class="result__winner">Draw</span>
+        } @else {
+          <span class="result__crown" aria-hidden="true">★</span>
+          <span class="result__winner">{{ r.winnerName }} wins</span>
+        }
+      </div>
+
+      <p class="result__summary">{{ r.summary }}</p>
+
+      <!-- Score bars -->
+      <div class="scores">
+        <div class="score" [class.is-winner]="r.winnerId === r.hero1.id">
+          <div class="score__head">
+            <span class="score__name">{{ r.hero1.name }}</span>
+            <span class="score__value">{{ r.hero1.score }}</span>
+          </div>
+          <div class="score__track">
+            <div class="score__fill" [style.width.%]="scoreWidth(r.hero1.score)"></div>
+          </div>
+        </div>
+
+        <div class="score" [class.is-winner]="r.winnerId === r.hero2.id">
+          <div class="score__head">
+            <span class="score__name">{{ r.hero2.name }}</span>
+            <span class="score__value">{{ r.hero2.score }}</span>
+          </div>
+          <div class="score__track">
+            <div class="score__fill" [style.width.%]="scoreWidth(r.hero2.score)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attribute breakdown -->
+      <h2 class="result__section">Attribute breakdown</h2>
+      <table class="breakdown">
+        <thead>
+          <tr>
+            <th class="breakdown__hero">{{ r.hero1.name }}</th>
+            <th class="breakdown__attr">Attribute</th>
+            <th class="breakdown__hero">{{ r.hero2.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of r.breakdown; track row.attribute) {
+            <tr>
+              <td class="breakdown__value" [class.is-winner]="row.wonBy === 1">{{ row.hero1Value }}</td>
+              <td class="breakdown__attr">
+                {{ row.attribute }}
+                <span class="breakdown__weight">{{ row.weightPercent }}%</span>
+              </td>
+              <td class="breakdown__value" [class.is-winner]="row.wonBy === 2">{{ row.hero2Value }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <p class="result__meta">
+        Battle #{{ r.battleId }} · saved to history
+      </p>
+    </div>
+  }
+
+  <!-- ---- Recent battles ---- -->
+  <h2 class="arena__section">Recent battles</h2>
+  @if (history().length === 0) {
+    <div class="su-state">
+      <p>No battles fought yet. Run the first one.</p>
+    </div>
+  } @else {
+    <ul class="history">
+      @for (item of history(); track item.id) {
+        <li class="history__row">
+          <a class="history__side" [routerLink]="['/superheroes', item.hero1Id]">
+            <hero-avatar class="history__avatar" [name]="item.hero1Name" [imageUrl]="item.hero1ImageUrl" />
+            <span class="history__name" [class.is-winner]="item.winnerId === item.hero1Id">
+              {{ item.hero1Name }}
+            </span>
+          </a>
+
+          <span class="history__score">
+            <strong [class.is-winner]="item.winnerId === item.hero1Id">{{ item.hero1Score }}</strong>
+            <span class="history__dash">–</span>
+            <strong [class.is-winner]="item.winnerId === item.hero2Id">{{ item.hero2Score }}</strong>
+          </span>
+
+          <a class="history__side history__side--right" [routerLink]="['/superheroes', item.hero2Id]">
+            <span class="history__name" [class.is-winner]="item.winnerId === item.hero2Id">
+              {{ item.hero2Name }}
+            </span>
+            <hero-avatar class="history__avatar" [name]="item.hero2Name" [imageUrl]="item.hero2ImageUrl" />
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<!-- ---- Combatant picker ---- -->
+@if (picking()) {
+  <div class="backdrop" (click)="picking.set(null)">
+    <div class="picker-panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <h3 class="picker-panel__title">
+        Choose hero {{ picking() }}
+      </h3>
+
+      <input
+        type="search"
+        class="su-input"
+        placeholder="Filter by name…"
+        [value]="pickerSearch()"
+        (input)="pickerSearch.set($any($event.target).value)"
+        aria-label="Filter heroes"
+      />
+
+      @if (pickerOptions().length === 0) {
+        <p class="picker-panel__empty">No heroes match that filter.</p>
+      } @else {
+        <ul class="picker">
+          @for (hero of pickerOptions(); track hero.id) {
+            <li>
+              <button type="button" class="picker__item" (click)="select(hero)">
+                <hero-avatar class="picker__avatar" [name]="hero.name" [imageUrl]="hero.imageUrl" />
+                <span class="picker__name">{{ hero.name }}</span>
+                <span class="su-badge" [class]="alignmentClass(hero.alignment)">{{ hero.alignment }}</span>
+                <span class="picker__power">{{ hero.powerLevel }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      }
+
+      <div class="picker-panel__actions">
+        <button type="button" class="su-btn is-ghost" (click)="picking.set(null)">Cancel</button>
+      </div>
+    </div>
+  </div>
+}
