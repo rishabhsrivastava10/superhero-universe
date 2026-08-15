@@ -13,8 +13,22 @@ tests, and a CI pipeline that actually gates merges.
 
 ---
 
+## Demo
+
+Signing in, filtering the roster, opening a hero, simulating a battle, and the rankings board —
+running against the real API and database, not a mock.
+
+![Superhero Universe walkthrough](Documentation/demo.gif)
+
+> The battle above is an upset: Nightwing (74 power) beats Wolverine (83). Outcomes are scored on
+> the server from six weighted attributes plus a bounded random factor, so the stronger hero is
+> favoured but not guaranteed — see [Design decisions](#design-decisions-worth-explaining).
+
+---
+
 ## Table of contents
 
+- [Demo](#demo)
 - [The problem it solves](#the-problem-it-solves)
 - [Features](#features)
 - [Architecture](#architecture)
