@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CommonAPI/CommonAPI.csproj" />
+  <Project Path="WebAPIManagementSystem/WebAPIManagementSystem.csproj" />
+</Solution>
