@@ -1,8 +1,0 @@
-ENTITY FRAMEWORK CORE - LEARNING RESOURCES
-(Last updated: 2026-08-15)
-
-- Official EF Core documentation (Microsoft Learn): https://learn.microsoft.com/en-us/ef/core/
-- EF Core migrations guide (Microsoft Learn): https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/
-- EF Core querying/loading related data (Microsoft Learn): https://learn.microsoft.com/en-us/ef/core/querying/related-data/
-- EF Core performance diagnostics (avoiding N+1, etc.) (Microsoft Learn): https://learn.microsoft.com/en-us/ef/core/performance/
-- EF Core modeling relationships (Microsoft Learn): https://learn.microsoft.com/en-us/ef/core/modeling/relationships

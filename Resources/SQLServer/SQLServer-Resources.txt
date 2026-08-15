@@ -1,8 +1,0 @@
-SQL SERVER - LEARNING RESOURCES
-(Last updated: 2026-08-15)
-
-- Official SQL Server documentation (Microsoft Learn): https://learn.microsoft.com/en-us/sql/sql-server/
-- Transact-SQL (T-SQL) reference (Microsoft Learn): https://learn.microsoft.com/en-us/sql/t-sql/language-reference
-- SQL Server index design guide (Microsoft Learn): https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide
-- W3Schools SQL tutorial (good for quick syntax lookup/practice): https://www.w3schools.com/sql/
-- Query execution plans guide (Microsoft Learn): https://learn.microsoft.com/en-us/sql/relational-databases/performance/execution-plans

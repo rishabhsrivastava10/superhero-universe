@@ -1,8 +1,0 @@
-DOCKER - LEARNING RESOURCES
-(Last updated: 2026-08-15)
-
-- Official Docker documentation: https://docs.docker.com/
-- Docker "Get Started" guide: https://docs.docker.com/get-started/
-- Dockerfile reference: https://docs.docker.com/reference/dockerfile/
-- Docker Compose documentation: https://docs.docker.com/compose/
-- .NET Docker images and containerization guide (Microsoft Learn): https://learn.microsoft.com/en-us/dotnet/core/docker/introduction

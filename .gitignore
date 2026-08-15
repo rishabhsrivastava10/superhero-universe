@@ -13,3 +13,8 @@ Thumbs.db
 # tracked. Committing it would add ~1.7 MB of undiffable binary to history on every regeneration.
 *.docx
 ~$*.docx
+
+# Personal study material - kept locally, deliberately not published.
+# These are the author's own interview notes and bookmarks, not part of the project.
+Theory Learning/
+Resources/
