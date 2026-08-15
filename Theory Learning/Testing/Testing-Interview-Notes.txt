@@ -50,6 +50,19 @@ TESTING PROBABILISTIC BEHAVIOUR WITHOUT A STUB
   * Outcomes that variance SHOULD flip - two near-identical heroes should not produce the same winner 20/20 times, and repeated identical matchups should not produce identical scores. This is what proves the randomness is actually wired in rather than silently stubbed out.
 - Storing a computed result matters too: fetching a historical record must return the SAVED scores, not re-run the calculation. Re-simulating would silently rewrite history. Worth an explicit test.
 
+TESTS THAT HARDCODE FIXTURE SIZES ARE BRITTLE (LEARNED IN THIS PROJECT)
+- Assertions like `Assert totalCount == 10` or `powers.Count == 16` broke the moment the seed data grew from 10 heroes to 28 - even though the API was behaving perfectly. The test was verifying the size of the fixture, not the behaviour of the code.
+- Prefer DERIVED expectations: compare a paged totalCount against an unfiltered query; compute expected totalPages as ceil(total / pageSize); assert the first row has the maximum value rather than naming a specific hero; assert a team's stated memberCount equals the length of its own member list.
+- Rule of thumb: if changing seed data breaks a test, ask whether the test was actually about that data. Sometimes yes (a seeding test), usually no.
+- Related: assert INVARIANTS (sums add up, counts agree across two endpoints, ordering is monotonic) rather than literal values. They keep working as data evolves, and they catch far more real bugs.
+
+POWERSHELL TEST-HARNESS TRAPS (COST REAL DEBUGGING TIME HERE)
+- Write-Host writes to the HOST, not the output stream, so `$output = & .\suite.ps1` captures NOTHING from it. A runner aggregating results this way silently reports zero. Emit a machine-readable line with Write-Output (and set an exit code) for anything a parent script or CI must read.
+- `$array.Count` returns $null for a single object; wrap in @(...) to force an array.
+- `$array.rank` (and .Count, .Length) are INTRINSIC array members that shadow the elements' own properties - `$results.rank` returns the array's dimension count (1), not each item's rank. Project explicitly: `$results | ForEach-Object { $_.rank }`.
+- Windows PowerShell 5.1 has no -SkipHttpErrorCheck; non-2xx responses throw, so status codes must be dug out of the caught WebException's Response.
+- sqlcmd parses a leading "/" as a switch, so a Unix-style path like /tmp/x.sql becomes "/t mp/x.sql". Pass Windows paths.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - Explain the testing pyramid and why E2E-heavy suites are usually a problem.
 - What's the difference between a mock and a stub?
