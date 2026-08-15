@@ -250,12 +250,52 @@ Every failure returns the same shape, so the client handles errors generically:
 
 ## Screens
 
-Dashboard · Hero list (search/filter/sort/paginate) · Hero detail · Battle simulator ·
-Missions · Rankings · Powers · Teams · Login/Register — all in a dark theme.
+### Dashboard
 
-> **Screenshots are not yet committed.** Capture the dashboard, hero list, hero detail and a
-> battle result, save them under `docs/screenshots/`, and link them here — this is the one
-> section a reader of a portfolio repo looks for first.
+Live aggregates — every figure is computed from the database on request, not stored.
+
+![Dashboard](Documentation/screenshots/03-dashboard.png)
+
+### Hero list
+
+Server-side search, filtering, sorting and paging. Typing is debounced, so a search sends one
+request rather than one per keystroke.
+
+![Hero list](Documentation/screenshots/04-heroes-list.png)
+
+### Hero detail
+
+Attributes, powers, teams and a battle record — several many-to-many relationships in one view.
+
+![Hero detail](Documentation/screenshots/06-hero-detail.png)
+
+### Battle simulator
+
+The browser sends two hero IDs and nothing else; the server computes the result and stores it.
+The breakdown shows which attribute proved decisive.
+
+![Battle result](Documentation/screenshots/08-battle-result.png)
+
+### Mission outcome
+
+The success probability, the roll against it, and each contributing factor — the result is
+explained rather than merely announced.
+
+![Mission result](Documentation/screenshots/11-mission-result.png)
+
+### Rankings
+
+Sortable by seven attributes, across Overall / Marvel / DC.
+
+![Rankings](Documentation/screenshots/12-rankings.png)
+
+Also included: login and registration, missions list, squad deployment, powers catalogue, team
+list and team detail — all 15 screens are in
+[`Documentation/screenshots/`](Documentation/screenshots/).
+
+> A Word walkthrough (`Documentation/Superhero Universe - Project Walkthrough.docx`) steps through
+> every screen with an explanation of what happens behind it. It is **not committed** — it is a
+> 1.7 MB binary that git cannot diff, and it is reproducible from the tracked screenshots above.
 
 ## Running it locally
 

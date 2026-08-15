@@ -7,3 +7,9 @@
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated documents.
+# The walkthrough .docx is rebuilt from the screenshots in Documentation/screenshots/, which ARE
+# tracked. Committing it would add ~1.7 MB of undiffable binary to history on every regeneration.
+*.docx
+~$*.docx
