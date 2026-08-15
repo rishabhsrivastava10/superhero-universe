@@ -1,7 +1,0 @@
-REST API DESIGN - LEARNING RESOURCES
-(Last updated: 2026-08-15)
-
-- RESTful API design tutorial/reference (widely used as an interview refresher): https://restfulapi.net/
-- Microsoft's Web API design best practices guide (Microsoft Learn): https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design
-- HTTP status codes reference (MDN): https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-- HTTP request methods reference (MDN): https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods

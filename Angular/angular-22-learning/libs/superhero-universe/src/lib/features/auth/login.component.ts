@@ -44,7 +44,9 @@ export class LoginComponent {
       next: (response) => {
         this.notifications.success(`Welcome back, ${response.username}.`);
         // Return the user to wherever the guard intercepted them.
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/superheroes';
+        // Falls back to '/' rather than a named page, so it always follows the app's default
+        // route instead of drifting when the landing page changes.
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
         void this.router.navigateByUrl(returnUrl);
       },
       // The error interceptor already showed a toast - just re-enable the form.

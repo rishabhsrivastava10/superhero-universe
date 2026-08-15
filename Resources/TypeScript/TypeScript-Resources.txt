@@ -1,8 +1,0 @@
-TYPESCRIPT - LEARNING RESOURCES
-(Last updated: 2026-08-15)
-
-- Official TypeScript docs & handbook (best starting point): https://www.typescriptlang.org/docs/handbook/intro.html
-- TypeScript Playground (try snippets in-browser, see compiled JS output): https://www.typescriptlang.org/play
-- Official "TS for JS programmers" quick primer: https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html
-- roadmap.sh (general JS/TS learning path context): https://roadmap.sh/
-- MDN JavaScript reference (TypeScript builds directly on JS semantics): https://developer.mozilla.org/en-US/docs/Web/JavaScript

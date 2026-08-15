@@ -1,8 +1,0 @@
-TESTING - LEARNING RESOURCES
-(Last updated: 2026-08-15)
-
-- xUnit official documentation (.NET unit testing): https://xunit.net/
-- .NET unit testing best practices (Microsoft Learn): https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices
-- Integration tests in ASP.NET Core with WebApplicationFactory (Microsoft Learn): https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests
-- Moq (mocking library) GitHub/quickstart: https://github.com/devlooped/moq
-- Angular testing guide (official docs): https://angular.dev/guide/testing

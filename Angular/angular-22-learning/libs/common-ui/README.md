@@ -1,64 +1,13 @@
-# CommonUi
+# common-ui (Angular library)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.0.
+**Currently empty, and that is intentional.**
 
-## Code scaffolding
+This is the front-end counterpart to the backend's `CommonAPI` project: a home for components that
+are genuinely generic — a data table, a date picker, a confirm dialog with no domain knowledge —
+so they can be shared by a second application in this workspace later.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Nothing lives here yet because everything built so far is superhero-specific and belongs in
+`libs/superhero-universe/src/lib/shared/`. Putting domain components here just because they are
+reused *within one app* would defeat the point.
 
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the library, run:
-
-```bash
-ng build common-ui
-```
-
-This command will compile your project, and the build artifacts will be placed in the `dist/` directory.
-
-### Publishing the Library
-
-Once the project is built, you can publish your library by following these steps:
-
-1. Navigate to the `dist` directory:
-
-   ```bash
-   cd dist/common-ui
-   ```
-
-2. Run the `npm publish` command to publish your library to the npm registry:
-   ```bash
-   npm publish
-   ```
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Move a component here only when a second application in this workspace actually needs it.

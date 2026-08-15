@@ -1,8 +1,0 @@
-AUTHENTICATION & AUTHORIZATION (JWT) - LEARNING RESOURCES
-(Last updated: 2026-08-15)
-
-- jwt.io - JWT introduction, structure, and a live token decoder/debugger: https://jwt.io/introduction
-- ASP.NET Core authentication overview (Microsoft Learn): https://learn.microsoft.com/en-us/aspnet/core/security/authentication/
-- ASP.NET Core authorization overview (roles, policies, claims) (Microsoft Learn): https://learn.microsoft.com/en-us/aspnet/core/security/authorization/introduction
-- OWASP Authentication Cheat Sheet (security best practices): https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
-- OWASP JSON Web Token Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html
