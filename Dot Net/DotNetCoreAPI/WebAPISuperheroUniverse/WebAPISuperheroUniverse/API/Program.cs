@@ -70,6 +70,10 @@ builder.Services.AddScoped<IBattleService, BattleService>();
 builder.Services.AddSingleton<IBattleVarianceProvider, ClsBattleVarianceProvider>();
 builder.Services.AddSingleton<ClsBattleCalculator>();
 
+builder.Services.AddScoped<IMissionService, MissionService>();
+builder.Services.AddSingleton<IMissionRollProvider, ClsMissionRollProvider>();
+builder.Services.AddSingleton<ClsMissionCalculator>();
+
 builder.Services.AddValidatorsFromAssemblyContaining<ClsRegisterRequestValidator>();
 
 builder.Services.AddControllers(options => options.Filters.Add<ClsValidationFilter>());

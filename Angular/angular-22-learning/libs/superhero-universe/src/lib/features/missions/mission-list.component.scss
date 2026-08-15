@@ -1,0 +1,495 @@
+.missions__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.missions__title {
+  font-size: 1.55rem;
+}
+
+.missions__count {
+  margin: 0.3rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.missions__tools {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.missions__tools .su-select {
+  width: auto;
+  min-width: 155px;
+}
+
+/* ---- Difficulty / status badges ------------------------------------------ */
+.su-badge {
+  &.is-easy {
+    background: rgb(46 204 143 / 15%);
+    color: var(--success);
+  }
+  &.is-medium {
+    background: rgb(255 182 72 / 15%);
+    color: var(--warning);
+  }
+  &.is-hard {
+    background: rgb(255 92 114 / 15%);
+    color: var(--danger);
+  }
+  &.is-pending {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+  }
+  &.is-success {
+    background: rgb(46 204 143 / 15%);
+    color: var(--success);
+  }
+  &.is-failed {
+    background: rgb(255 92 114 / 15%);
+    color: var(--danger);
+  }
+}
+
+/* ---- Mission cards ------------------------------------------------------- */
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  gap: 1.1rem;
+}
+
+.mission-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease;
+
+  &:hover {
+    border-color: var(--accent);
+  }
+}
+
+.mission-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+}
+
+.mission-card__title {
+  font-size: 1.05rem;
+  margin-bottom: 0.3rem;
+}
+
+.mission-card__location {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.mission-card__desc {
+  flex: 1;
+  margin: 0 0 1rem;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mission-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+
+  strong {
+    color: var(--accent-strong);
+  }
+}
+
+.mission-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mission-card__actions .su-btn {
+  flex: 1;
+}
+
+.mission-card__done {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.mission-card__delete {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+}
+
+/* ---- Dialogs ------------------------------------------------------------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(4 6 20 / 72%);
+  backdrop-filter: blur(2px);
+}
+
+.deploy,
+.panel {
+  width: min(560px, 100%);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow-y: auto;
+}
+
+.deploy__title,
+.panel__title {
+  font-size: 1.15rem;
+}
+
+.deploy__brief {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0;
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.deploy__status {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 0.8rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+
+  .is-warning {
+    color: var(--warning);
+  }
+  .is-good {
+    color: var(--success);
+  }
+}
+
+.deploy__avg {
+  color: var(--text-muted);
+}
+
+.deploy__auto {
+  margin-left: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.deploy__section {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.deploy__actions,
+.panel__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+/* ---- Hero picker --------------------------------------------------------- */
+.picker {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 0.35rem;
+}
+
+.picker__item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-app);
+  font-size: 0.84rem;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease;
+
+  &:hover {
+    background: var(--bg-surface-hover);
+  }
+
+  &.is-selected {
+    border-color: var(--accent);
+    background: rgb(108 92 231 / 14%);
+  }
+
+  input {
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+}
+
+.picker__avatar {
+  --avatar-size: 28px;
+  --avatar-radius: 8px;
+  --avatar-font-size: 0.62rem;
+}
+
+.picker__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picker__power {
+  font-weight: 700;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Outcome ------------------------------------------------------------- */
+.outcome {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0;
+}
+
+.outcome__mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgb(255 92 114 / 16%);
+  color: var(--danger);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.outcome.is-success .outcome__mark {
+  background: rgb(46 204 143 / 16%);
+  color: var(--success);
+}
+
+.outcome__title {
+  font-size: 1.35rem;
+}
+
+.outcome__summary {
+  margin: 0;
+  text-align: center;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ---- Odds visualisation -------------------------------------------------- */
+.odds__bar {
+  position: relative;
+  height: 12px;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.odds__chance {
+  height: 100%;
+  background: linear-gradient(90deg, rgb(46 204 143 / 55%), rgb(46 204 143 / 25%));
+}
+
+.odds__marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: calc(100% + 6px);
+  background: var(--text-primary);
+  transform: translateX(-1px);
+}
+
+.odds__legend {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.45rem;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  margin-right: 0.35rem;
+
+  &.is-chance {
+    background: var(--success);
+  }
+  &.is-roll {
+    background: var(--text-primary);
+  }
+}
+
+/* ---- Factors ------------------------------------------------------------- */
+.factors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.factor {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.75rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.factor__label {
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.factor__detail {
+  grid-column: 1;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.factor__value {
+  grid-row: 1 / span 2;
+  align-self: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+
+  &.is-positive {
+    color: var(--success);
+  }
+  &.is-negative {
+    color: var(--danger);
+  }
+}
+
+/* ---- Squad --------------------------------------------------------------- */
+.squad {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.squad__member {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.35rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.8rem;
+}
+
+.squad__avatar {
+  --avatar-size: 26px;
+  --avatar-radius: 50%;
+  --avatar-font-size: 0.58rem;
+}
+
+.squad__power {
+  font-weight: 700;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0 1rem;
+}
+
+@media (max-width: 640px) {
+  .missions__tools {
+    width: 100%;
+  }
+  .missions__tools .su-select {
+    flex: 1;
+  }
+}

@@ -64,6 +64,12 @@ DELETES BLOCKED BY REFERENTIAL INTEGRITY
 - Better: check for dependents up front and return 409 Conflict with a message explaining WHY (e.g. "this hero has battle history"). The caller learns something actionable, and the log isn't polluted with fake exceptions.
 - Consider whether the record should be deletable at all - historical/audit rows (battles here) are often worth preserving permanently, making a soft delete or an outright block the correct behaviour.
 
+STATE TRANSITIONS AND IDEMPOTENCY OF "ACTION" ENDPOINTS (FROM THIS PROJECT'S MISSIONS)
+- Not every POST creates a resource. POST /api/missions/{id}/start RUNS something - it is an action on an existing resource, which is why it returns 200 with a result rather than 201 with a Location header. POST /api/battles/simulate does create a battle record, so that one correctly returns 201.
+- Guard state transitions explicitly. Re-running an already-resolved mission would silently overwrite a historical outcome, so the second attempt returns 409 Conflict with a message explaining that a reset is required - rather than quietly producing a different answer to the same question.
+- If a resource can legitimately be re-attempted, give it an explicit reset/reopen endpoint instead of letting the action endpoint overwrite state. That keeps the destructive step deliberate and auditable, and it is usually admin-only.
+- Return the WHY, not just the result. The mission endpoint returns the success chance, the roll, and the individual factors that produced the chance. An endpoint that returns only "Failed" is impossible for a user to reason about and impossible for you to debug from a bug report.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - Explain idempotency and which HTTP verbs are idempotent.
 - How would you design pagination for a large, frequently-changing list?

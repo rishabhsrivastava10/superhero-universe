@@ -1,0 +1,281 @@
+<section class="missions">
+  <header class="missions__head">
+    <div>
+      <h1 class="missions__title">Missions</h1>
+      <p class="missions__count">
+        @if (loading()) {
+          Loading…
+        } @else {
+          {{ items().length }} {{ items().length === 1 ? 'mission' : 'missions' }}
+        }
+      </p>
+    </div>
+
+    <div class="missions__tools">
+      <select
+        class="su-select"
+        [value]="statusFilter()"
+        (change)="onStatusChange($any($event.target).value)"
+        aria-label="Filter by status"
+      >
+        <option value="">All statuses</option>
+        <option value="Pending">Pending</option>
+        <option value="Success">Success</option>
+        <option value="Failed">Failed</option>
+      </select>
+
+      @if (isAdmin()) {
+        <button type="button" class="su-btn is-primary" (click)="openCreate()">+ Add Mission</button>
+      }
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="su-state">
+      <div class="su-spinner"></div>
+      <p>Loading missions…</p>
+    </div>
+  } @else if (items().length === 0) {
+    <div class="su-state">
+      <p>No missions found.</p>
+    </div>
+  } @else {
+    <div class="mission-grid">
+      @for (mission of items(); track mission.id) {
+        <article class="mission-card">
+          <div class="mission-card__head">
+            <span class="su-badge" [class]="difficultyClass(mission.difficulty)">
+              {{ mission.difficulty }}
+            </span>
+            <span class="su-badge" [class]="statusClass(mission.status)">{{ mission.status }}</span>
+          </div>
+
+          <h2 class="mission-card__title">{{ mission.title }}</h2>
+
+          @if (mission.location) {
+            <p class="mission-card__location">{{ mission.location }}</p>
+          }
+
+          @if (mission.description) {
+            <p class="mission-card__desc">{{ mission.description }}</p>
+          }
+
+          <div class="mission-card__meta">
+            <span>
+              Requires <strong>{{ mission.requiredHeroCount }}</strong>
+              {{ mission.requiredHeroCount === 1 ? 'hero' : 'heroes' }}
+            </span>
+            @if (mission.assignedHeroCount > 0) {
+              <span>{{ mission.assignedHeroCount }} deployed</span>
+            }
+          </div>
+
+          <div class="mission-card__actions">
+            @if (isResolved(mission.status)) {
+              @if (isAdmin()) {
+                <button type="button" class="su-btn is-ghost" (click)="reset(mission)">Reset</button>
+              } @else {
+                <span class="mission-card__done">Completed</span>
+              }
+            } @else {
+              <button type="button" class="su-btn is-primary" (click)="openDeploy(mission)">
+                Deploy squad
+              </button>
+            }
+
+            @if (isAdmin()) {
+              <button
+                type="button"
+                class="mission-card__delete"
+                (click)="pendingDelete.set(mission)"
+                [attr.aria-label]="'Delete ' + mission.title"
+                title="Delete"
+              >
+                &times;
+              </button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
+
+<!-- ---- Deploy / result dialog ---- -->
+@if (deploying(); as mission) {
+  <div class="backdrop" (click)="closeDeploy()">
+    <div class="deploy" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      @if (result(); as r) {
+        <!-- Result view -->
+        <div class="outcome" [class.is-success]="r.succeeded">
+          <span class="outcome__mark" aria-hidden="true">{{ r.succeeded ? '✓' : '✕' }}</span>
+          <h3 class="outcome__title">{{ r.succeeded ? 'Mission Success' : 'Mission Failed' }}</h3>
+        </div>
+
+        <p class="outcome__summary">{{ r.summary }}</p>
+
+        <div class="odds">
+          <div class="odds__bar" role="img"
+               [attr.aria-label]="'Success chance ' + r.successChancePercent + ' percent, rolled ' + r.rollPercent">
+            <div class="odds__chance" [style.width.%]="r.successChancePercent"></div>
+            <div class="odds__marker" [style.left.%]="r.rollPercent"></div>
+          </div>
+          <div class="odds__legend">
+            <span><i class="dot is-chance"></i> {{ r.successChancePercent }}% success chance</span>
+            <span><i class="dot is-roll"></i> rolled {{ r.rollPercent }}</span>
+          </div>
+        </div>
+
+        <h4 class="deploy__section">How it was calculated</h4>
+        <ul class="factors">
+          @for (factor of r.factors; track factor.label) {
+            <li class="factor">
+              <span class="factor__label">{{ factor.label }}</span>
+              <span class="factor__detail">{{ factor.detail }}</span>
+              <span
+                class="factor__value"
+                [class.is-positive]="factor.contributionPercent > 0"
+                [class.is-negative]="factor.contributionPercent < 0"
+              >
+                {{ factor.contributionPercent > 0 ? '+' : '' }}{{ factor.contributionPercent }}
+              </span>
+            </li>
+          }
+        </ul>
+
+        <h4 class="deploy__section">Squad deployed</h4>
+        <ul class="squad">
+          @for (hero of r.squad; track hero.superheroId) {
+            <li class="squad__member">
+              <hero-avatar class="squad__avatar" [name]="hero.name" [imageUrl]="hero.imageUrl" />
+              <span class="squad__name">{{ hero.name }}</span>
+              <span class="squad__power">{{ hero.powerLevel }}</span>
+            </li>
+          }
+        </ul>
+
+        <div class="deploy__actions">
+          <button type="button" class="su-btn is-primary" (click)="closeDeploy()">Done</button>
+        </div>
+      } @else {
+        <!-- Squad selection view -->
+        <h3 class="deploy__title">{{ mission.title }}</h3>
+        <p class="deploy__brief">
+          <span class="su-badge" [class]="difficultyClass(mission.difficulty)">{{ mission.difficulty }}</span>
+          Requires {{ mission.requiredHeroCount }}
+          {{ mission.requiredHeroCount === 1 ? 'hero' : 'heroes' }}
+          @if (mission.location) {
+            · {{ mission.location }}
+          }
+        </p>
+
+        <div class="deploy__status">
+          <span
+            [class.is-warning]="selectedIds().size < mission.requiredHeroCount"
+            [class.is-good]="selectedIds().size >= mission.requiredHeroCount"
+          >
+            {{ selectedIds().size }} selected
+            @if (selectedIds().size < mission.requiredHeroCount) {
+              — understaffed, success chance will be reduced
+            } @else if (selectedIds().size > mission.requiredHeroCount) {
+              — reinforced
+            } @else {
+              — exactly as briefed
+            }
+          </span>
+          @if (selectedIds().size > 0) {
+            <span class="deploy__avg">avg power {{ averagePower() }}</span>
+          }
+          <button type="button" class="deploy__auto" (click)="autoPick()">Auto-pick strongest</button>
+        </div>
+
+        <ul class="picker">
+          @for (hero of roster(); track hero.id) {
+            <li>
+              <label class="picker__item" [class.is-selected]="isSelected(hero.id)">
+                <input type="checkbox" [checked]="isSelected(hero.id)" (change)="toggleHero(hero.id)" />
+                <hero-avatar class="picker__avatar" [name]="hero.name" [imageUrl]="hero.imageUrl" />
+                <span class="picker__name">{{ hero.name }}</span>
+                <span class="picker__power">{{ hero.powerLevel }}</span>
+              </label>
+            </li>
+          }
+        </ul>
+
+        <div class="deploy__actions">
+          <button type="button" class="su-btn is-ghost" (click)="closeDeploy()">Cancel</button>
+          <button type="button" class="su-btn is-primary" [disabled]="!canDeploy() || running()" (click)="deploy()">
+            {{ running() ? 'Deploying…' : 'Start mission' }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- ---- Create mission ---- -->
+@if (formOpen()) {
+  <div class="backdrop" (click)="formOpen.set(false)">
+    <div class="panel" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <h3 class="panel__title">New mission</h3>
+
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="su-field">
+          <label class="su-label" for="m-title">Title *</label>
+          <input
+            id="m-title"
+            class="su-input"
+            [class.is-invalid]="invalidTitle()"
+            formControlName="title"
+            placeholder="e.g. Contain the Breach"
+          />
+          @if (invalidTitle()) {
+            <p class="su-error">Mission title is required.</p>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="su-field">
+            <label class="su-label" for="m-difficulty">Difficulty *</label>
+            <select id="m-difficulty" class="su-select" formControlName="difficulty">
+              @for (d of difficulties; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="su-field">
+            <label class="su-label" for="m-required">Required heroes *</label>
+            <input id="m-required" type="number" min="1" max="20" class="su-input" formControlName="requiredHeroCount" />
+          </div>
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="m-location">Location</label>
+          <input id="m-location" class="su-input" formControlName="location" />
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="m-desc">Description</label>
+          <textarea id="m-desc" class="su-textarea" formControlName="description"></textarea>
+        </div>
+
+        <div class="panel__actions">
+          <button type="button" class="su-btn is-ghost" (click)="formOpen.set(false)">Cancel</button>
+          <button type="submit" class="su-btn is-primary" [disabled]="saving()">
+            {{ saving() ? 'Saving…' : 'Create mission' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+@if (pendingDelete(); as mission) {
+  <hero-confirm-dialog
+    title="Delete mission?"
+    [message]="'This will permanently remove &quot;' + mission.title + '&quot;.'"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}

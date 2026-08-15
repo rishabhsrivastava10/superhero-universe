@@ -19,6 +19,7 @@ export * from './lib/core/services/superhero.service';
 export * from './lib/core/services/power.service';
 export * from './lib/core/services/team.service';
 export * from './lib/core/services/battle.service';
+export * from './lib/core/services/mission.service';
 
 // Shared components
 export * from './lib/shared/components/toast-host.component';
@@ -33,3 +34,4 @@ export * from './lib/shared/models/superhero.models';
 export * from './lib/shared/models/api-error.model';
 export * from './lib/shared/models/power-team.models';
 export * from './lib/shared/models/battle.models';
+export * from './lib/shared/models/mission.models';

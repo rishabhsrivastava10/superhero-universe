@@ -23,8 +23,8 @@ export class SidebarComponent {
     { label: 'Battle', path: '/battles', icon: 'swords' },
     { label: 'Powers', path: '/powers', icon: 'bolt' },
     { label: 'Teams', path: '/teams', icon: 'users' },
+    { label: 'Missions', path: '/missions', icon: 'target' },
     { label: 'Dashboard', path: '/dashboard', icon: 'chart', comingSoon: true },
-    { label: 'Missions', path: '/missions', icon: 'target', comingSoon: true },
     { label: 'Rankings', path: '/rankings', icon: 'trophy', comingSoon: true },
   ];
 }

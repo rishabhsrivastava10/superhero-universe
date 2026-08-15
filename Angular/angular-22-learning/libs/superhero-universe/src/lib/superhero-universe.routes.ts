@@ -61,6 +61,12 @@ export const superheroUniverseRoutes: Routes = [
         title: 'Hero | Superhero Universe',
       },
       {
+        path: 'missions',
+        loadComponent: () =>
+          import('./features/missions/mission-list.component').then((m) => m.MissionListComponent),
+        title: 'Missions | Superhero Universe',
+      },
+      {
         path: 'powers',
         loadComponent: () =>
           import('./features/powers/power-list.component').then((m) => m.PowerListComponent),
