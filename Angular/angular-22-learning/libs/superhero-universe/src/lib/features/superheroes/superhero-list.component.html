@@ -1,0 +1,204 @@
+<section class="heroes">
+  <header class="heroes__head">
+    <div>
+      <h1 class="heroes__title">All Heroes</h1>
+      <p class="heroes__count">
+        @if (loading()) {
+          Loading…
+        } @else {
+          {{ totalCount() }} {{ totalCount() === 1 ? 'hero' : 'heroes' }}
+          @if (hasFilters()) {
+            <span class="heroes__filtered">(filtered)</span>
+          }
+        }
+      </p>
+    </div>
+
+    @if (isAdmin()) {
+      <a class="su-btn is-primary" routerLink="/superheroes/new">+ Add Hero</a>
+    }
+  </header>
+
+  <!-- Filter bar -->
+  <div class="filters">
+    <input
+      type="search"
+      class="su-input filters__search"
+      placeholder="Search by name or real name…"
+      [formControl]="searchControl"
+      (search)="onSearchApply()"
+      aria-label="Search heroes"
+    />
+
+    <select
+      class="su-select filters__select"
+      [value]="universe()"
+      (change)="universe.set($any($event.target).value); onFilterChange()"
+      aria-label="Filter by universe"
+    >
+      <option value="">All universes</option>
+      <option value="Marvel">Marvel</option>
+      <option value="DC">DC</option>
+    </select>
+
+    <select
+      class="su-select filters__select"
+      [value]="alignment()"
+      (change)="alignment.set($any($event.target).value); onFilterChange()"
+      aria-label="Filter by alignment"
+    >
+      <option value="">All alignments</option>
+      @for (option of alignments; track option) {
+        <option [value]="option">{{ option }}</option>
+      }
+    </select>
+
+    <label class="filters__power">
+      <span class="filters__power-label">Min power {{ minPowerLevel() }}</span>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="5"
+        [value]="minPowerLevel()"
+        (change)="minPowerLevel.set(+$any($event.target).value); onFilterChange()"
+        aria-label="Minimum power level"
+      />
+    </label>
+
+    <select
+      class="su-select filters__select"
+      [value]="currentSort()"
+      (change)="setSort($any($event.target).value)"
+      aria-label="Sort heroes"
+    >
+      <option value="powerLevel:desc">Power (high → low)</option>
+      <option value="powerLevel:asc">Power (low → high)</option>
+      <option value="name:asc">Name (A → Z)</option>
+      <option value="name:desc">Name (Z → A)</option>
+      <option value="combat:desc">Combat (high → low)</option>
+      <option value="intelligence:desc">Intelligence (high → low)</option>
+    </select>
+
+    @if (hasFilters()) {
+      <button type="button" class="su-btn is-ghost" (click)="clearFilters()">Clear</button>
+    }
+  </div>
+
+  <!-- Content states -->
+  @if (loading()) {
+    <div class="su-state">
+      <div class="su-spinner"></div>
+      <p>Loading heroes…</p>
+    </div>
+  } @else if (loadFailed()) {
+    <div class="su-state">
+      <p>Could not load heroes.</p>
+      <button type="button" class="su-btn" (click)="load()">Try again</button>
+    </div>
+  } @else if (heroes().length === 0) {
+    <div class="su-state">
+      <p>No heroes match these filters.</p>
+      @if (hasFilters()) {
+        <button type="button" class="su-btn" (click)="clearFilters()">Clear filters</button>
+      }
+    </div>
+  } @else {
+    <div class="grid">
+      @for (hero of heroes(); track hero.id) {
+        <a class="card" [routerLink]="['/superheroes', hero.id]">
+          <div class="card__top">
+            <div class="card__avatar" aria-hidden="true">
+              @if (hero.imageUrl) {
+                <img [src]="hero.imageUrl" [alt]="hero.name" loading="lazy" />
+              } @else {
+                <span>{{ initials(hero.name) }}</span>
+              }
+            </div>
+
+            <div class="card__actions">
+              <span class="su-badge" [class]="alignmentClass(hero.alignment)">
+                {{ hero.alignment }}
+              </span>
+              @if (isAdmin()) {
+                <button
+                  type="button"
+                  class="card__delete"
+                  (click)="requestDelete(hero, $event)"
+                  [attr.aria-label]="'Delete ' + hero.name"
+                  title="Delete"
+                >
+                  &times;
+                </button>
+              }
+            </div>
+          </div>
+
+          <h2 class="card__name">{{ hero.name }}</h2>
+          @if (hero.realName) {
+            <p class="card__real">{{ hero.realName }}</p>
+          }
+
+          <p class="card__powers">
+            @if (hero.powers.length) {
+              {{ hero.powers.join(', ') }}
+            } @else {
+              <span class="card__powers--none">No powers recorded</span>
+            }
+          </p>
+
+          <div class="card__foot">
+            <span class="card__universe">{{ hero.universe }}</span>
+            <span class="card__power">
+              <span class="card__power-value">{{ hero.powerLevel }}</span>
+              <span class="card__power-label">PWR</span>
+            </span>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pager" aria-label="Pagination">
+        <button
+          type="button"
+          class="su-btn is-ghost"
+          [disabled]="page() === 1"
+          (click)="goToPage(page() - 1)"
+        >
+          Prev
+        </button>
+
+        @for (n of pageNumbers(); track n) {
+          <button
+            type="button"
+            class="pager__num"
+            [class.is-current]="n === page()"
+            [attr.aria-current]="n === page() ? 'page' : null"
+            (click)="goToPage(n)"
+          >
+            {{ n }}
+          </button>
+        }
+
+        <button
+          type="button"
+          class="su-btn is-ghost"
+          [disabled]="page() === totalPages()"
+          (click)="goToPage(page() + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+</section>
+
+@if (pendingDelete(); as hero) {
+  <hero-confirm-dialog
+    title="Delete hero?"
+    [message]="'This will permanently remove ' + hero.name + '.'"
+    (confirmed)="confirmDelete()"
+    (cancelled)="pendingDelete.set(null)"
+  />
+}

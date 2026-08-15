@@ -4,8 +4,11 @@
   "compileOnSave": false,
   "compilerOptions": {
     "paths": {
-      "common-ui": ["./dist/common-ui"],
-      "superhero-universe": ["./dist/superhero-universe"]
+      // Mapped to library SOURCE, not dist/. The libraries are consumed only by this workspace,
+      // so compiling against source removes the "rebuild the library before the app sees your
+      // change" step. Switch these to ./dist/* if a library is ever published to a registry.
+      "common-ui": ["./libs/common-ui/src/public-api.ts"],
+      "superhero-universe": ["./libs/superhero-universe/src/public-api.ts"]
     },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

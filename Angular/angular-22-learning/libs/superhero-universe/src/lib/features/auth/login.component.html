@@ -1,0 +1,71 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-card__brand">
+      <span class="auth-card__logo" aria-hidden="true"></span>
+      <span>Superhero<strong>Universe</strong></span>
+    </div>
+
+    <h1 class="auth-card__title">Sign in</h1>
+    <p class="auth-card__subtitle">Enter your credentials to access the universe.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="su-field">
+        <!-- The placeholder carries the label, so an aria-label keeps it announced to
+             screen readers (a placeholder alone is not an accessible name). -->
+        <input
+          id="username"
+          type="text"
+          class="su-input"
+          [class.is-invalid]="invalid('username')"
+          formControlName="username"
+          autocomplete="username"
+          placeholder="User Name"
+          aria-label="User Name"
+        />
+        @if (invalid('username')) {
+          <p class="su-error">User name is required.</p>
+        }
+      </div>
+
+      <div class="su-field">
+        <div class="password">
+          <input
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            class="su-input password__input"
+            [class.is-invalid]="invalid('password')"
+            formControlName="password"
+            autocomplete="current-password"
+            placeholder="Password"
+            aria-label="Password"
+          />
+          <button
+            type="button"
+            class="password__toggle"
+            (click)="togglePassword()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword()"
+            [title]="showPassword() ? 'Hide password' : 'Show password'"
+          >
+            <hero-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="17" />
+          </button>
+        </div>
+        @if (invalid('password')) {
+          <p class="su-error">Password is required.</p>
+        }
+      </div>
+
+      <button type="submit" class="su-btn is-primary auth-card__submit" [disabled]="submitting()">
+        @if (submitting()) {
+          Signing in…
+        } @else {
+          Sign in
+        }
+      </button>
+    </form>
+
+    <p class="auth-card__footer">
+      No account yet? <a routerLink="/register">Create one</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+<aside class="sidebar">
+  <div class="sidebar__brand">
+    <span class="sidebar__logo" aria-hidden="true"></span>
+    <span class="sidebar__name">Superhero<strong>Universe</strong></span>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Main navigation">
+    @for (item of navItems; track item.path) {
+      @if (item.comingSoon) {
+        <span class="nav-item is-disabled" [attr.title]="item.label + ' - coming in a later phase'">
+          <hero-icon [name]="item.icon" />
+          <span class="nav-item__label">{{ item.label }}</span>
+          <span class="nav-item__soon">soon</span>
+        </span>
+      } @else {
+        <a
+          class="nav-item"
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <hero-icon [name]="item.icon" />
+          <span class="nav-item__label">{{ item.label }}</span>
+        </a>
+      }
+    }
+  </nav>
+
+  <!-- "Add Hero" deliberately lives only on the heroes page toolbar, not here too -
+       one obvious place per action reads better than the same button twice. -->
+</aside>

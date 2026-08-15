@@ -49,6 +49,21 @@ HATEOAS (AWARENESS, NOT ALWAYS PRACTICAL)
 RATE LIMITING (AWARENESS)
 - Protects the API from abuse/overload — typically implemented via middleware (ASP.NET Core has built-in rate limiting middleware since .NET 7) using a fixed window, sliding window, or token bucket algorithm.
 
+UNSTABLE PAGINATION (LEARNED BUILDING THIS PROJECT)
+- Offset pagination (Skip/Take -> OFFSET/FETCH) over a NON-UNIQUE sort key has no guaranteed row order. Sorting 10 heroes by PowerLevel where several share the same value means SQL Server may order the tied rows differently between the page-1 and page-2 queries - so the same record can appear on both pages, and another can be skipped entirely.
+- Fix: always append a unique tie-breaker to the sort, e.g. .OrderByDescending(h => h.PowerLevel).ThenBy(h => h.Id). Cheap, and it makes paging deterministic.
+- Worth testing explicitly: fetch page 1 and page 2, and assert the two sets of IDs do not intersect.
+
+SORTING FROM USER INPUT SAFELY
+- A ?sortBy=<column> parameter is user-controlled input. Never interpolate it into SQL or build a dynamic expression from the raw string - that is a SQL-injection vector.
+- Use a switch/allow-list mapping known keys to real properties, and reject anything else with 400. Validating against the allow-list also gives the caller a useful error instead of silently ignoring their sort.
+- Same idea for pageSize: clamp it server-side (e.g. max 100) so nobody can request pageSize=1000000 and pull the entire table.
+
+DELETES BLOCKED BY REFERENTIAL INTEGRITY
+- When an FK is ON DELETE NO ACTION/RESTRICT, deleting a referenced row throws a DB-level FK violation, which surfaces to the client as a 500 - a server error for what is really a client-side conflict.
+- Better: check for dependents up front and return 409 Conflict with a message explaining WHY (e.g. "this hero has battle history"). The caller learns something actionable, and the log isn't polluted with fake exceptions.
+- Consider whether the record should be deletable at all - historical/audit rows (battles here) are often worth preserving permanently, making a soft delete or an outright block the correct behaviour.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - Explain idempotency and which HTTP verbs are idempotent.
 - How would you design pagination for a large, frequently-changing list?

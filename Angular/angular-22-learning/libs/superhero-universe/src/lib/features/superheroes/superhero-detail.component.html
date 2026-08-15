@@ -1,0 +1,132 @@
+@if (loading()) {
+  <div class="su-state">
+    <div class="su-spinner"></div>
+    <p>Loading hero…</p>
+  </div>
+} @else if (notFound()) {
+  <div class="su-state">
+    <h2>Hero not found</h2>
+    <p>This hero may have been deleted.</p>
+    <a class="su-btn" routerLink="/superheroes">Back to all heroes</a>
+  </div>
+} @else if (hero(); as h) {
+  <section class="detail">
+    <a class="detail__back" routerLink="/superheroes">&larr; Back to all heroes</a>
+
+    <header class="detail__head">
+      <div class="detail__identity">
+        <div class="detail__avatar" aria-hidden="true">
+          @if (h.imageUrl) {
+            <img [src]="h.imageUrl" [alt]="h.name" />
+          } @else {
+            <span>{{ initials(h.name) }}</span>
+          }
+        </div>
+        <div>
+          <h1 class="detail__name">{{ h.name }}</h1>
+          @if (h.realName) {
+            <p class="detail__real">{{ h.realName }}</p>
+          }
+          <div class="detail__tags">
+            <span class="su-badge" [class]="alignmentClass(h.alignment)">{{ h.alignment }}</span>
+            <span class="su-badge">{{ h.universe }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if (isAdmin()) {
+        <div class="detail__admin">
+          <a class="su-btn" [routerLink]="['/superheroes', h.id, 'edit']">Edit</a>
+          <button type="button" class="su-btn is-danger" (click)="confirmingDelete.set(true)">
+            Delete
+          </button>
+        </div>
+      }
+    </header>
+
+    @if (h.description) {
+      <p class="detail__description">{{ h.description }}</p>
+    }
+
+    <div class="detail__grid">
+      <!-- Attributes -->
+      <div class="su-card">
+        <h2 class="panel__title">Attributes</h2>
+        @for (key of statKeys; track key) {
+          <hero-stat-bar [label]="key" [value]="statValue(h, key)" />
+        }
+      </div>
+
+      <!-- Overall power + win ring -->
+      <div class="su-card detail__power-card">
+        <h2 class="panel__title">Overall</h2>
+
+        <div class="power">
+          <span class="power__value">{{ h.powerLevel }}</span>
+          <span class="power__label">Power level</span>
+        </div>
+
+        <div class="ring">
+          <svg viewBox="0 0 120 120" class="ring__svg" role="img"
+               [attr.aria-label]="'Win rate ' + winRate() + ' percent'">
+            <circle class="ring__track" cx="60" cy="60" r="52" />
+            <circle
+              class="ring__fill"
+              cx="60"
+              cy="60"
+              r="52"
+              [style.stroke-dasharray]="ringCircumference"
+              [style.stroke-dashoffset]="ringOffset()"
+            />
+          </svg>
+          <div class="ring__center">
+            <span class="ring__pct">{{ winRate() }}%</span>
+            <span class="ring__caption">win rate</span>
+          </div>
+        </div>
+
+        <p class="power__record">
+          {{ h.battlesWon }} won of {{ h.totalBattles }}
+          {{ h.totalBattles === 1 ? 'battle' : 'battles' }}
+        </p>
+      </div>
+
+      <!-- Powers -->
+      <div class="su-card">
+        <h2 class="panel__title">Powers</h2>
+        @if (h.powers.length) {
+          <ul class="chips">
+            @for (power of h.powers; track power) {
+              <li class="chip">{{ power }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="panel__empty">No powers assigned yet.</p>
+        }
+      </div>
+
+      <!-- Teams -->
+      <div class="su-card">
+        <h2 class="panel__title">Teams</h2>
+        @if (h.teams.length) {
+          <ul class="chips">
+            @for (team of h.teams; track team) {
+              <li class="chip">{{ team }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="panel__empty">Not a member of any team.</p>
+        }
+      </div>
+    </div>
+  </section>
+
+  @if (confirmingDelete()) {
+    <hero-confirm-dialog
+      title="Delete hero?"
+      [message]="'This will permanently remove ' + h.name + '.'"
+      (confirmed)="confirmDelete()"
+      (cancelled)="confirmingDelete.set(false)"
+    />
+  }
+}

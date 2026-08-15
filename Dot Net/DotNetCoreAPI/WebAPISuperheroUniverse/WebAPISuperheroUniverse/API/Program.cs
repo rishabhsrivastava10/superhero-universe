@@ -60,6 +60,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton<IPasswordHasher, ClsPasswordHasher>();
 builder.Services.AddSingleton<ITokenGenerator, ClsTokenGenerator>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISuperheroService, SuperheroService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<ClsRegisterRequestValidator>();
 

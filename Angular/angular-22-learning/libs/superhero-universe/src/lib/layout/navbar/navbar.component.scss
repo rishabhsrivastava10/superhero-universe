@@ -1,0 +1,135 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-app);
+}
+
+.navbar__spacer {
+  flex: 1;
+}
+
+.navbar__user {
+  position: relative;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.35rem 0.6rem 0.35rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--bg-surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease;
+
+  &:hover {
+    background: var(--bg-surface-hover);
+  }
+}
+
+.user-chip__avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.user-chip__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.user-chip__name {
+  font-size: 0.88rem;
+}
+
+.user-chip__role {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  border: 1px solid var(--accent);
+  border-radius: 99px;
+  padding: 0.05rem 0.35rem;
+}
+
+.user-chip__caret {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--text-muted);
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.6rem);
+  z-index: 200;
+  width: 232px;
+  padding: 0.9rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.menu__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.menu__name {
+  font-weight: 600;
+}
+
+.menu__email {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.menu__roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.7rem 0;
+}
+
+.menu__action {
+  width: 100%;
+  padding: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--danger);
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease;
+
+  &:hover {
+    background: rgb(255 92 114 / 12%);
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+}

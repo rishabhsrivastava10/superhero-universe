@@ -1,0 +1,264 @@
+/* ============================================================================
+   Superhero Universe - global theme
+   Dark navy/indigo with purple-blue gradient accents (the "Herobook" direction).
+   ========================================================================== */
+
+:root {
+  /* Surfaces, darkest to lightest */
+  --bg-app: #0b0f2b;
+  --bg-sidebar: #141a45;
+  --bg-surface: #1b2154;
+  --bg-surface-hover: #232a66;
+  --bg-elevated: #2a3178;
+
+  /* Accent */
+  --accent: #6c5ce7;
+  --accent-strong: #8b7bff;
+  --accent-gradient: linear-gradient(135deg, #6c5ce7 0%, #4a7dff 100%);
+
+  /* Text */
+  --text-primary: #f2f4ff;
+  --text-secondary: #a8afd8;
+  --text-muted: #6f77a8;
+
+  /* Semantic */
+  --success: #2ecc8f;
+  --danger: #ff5c72;
+  --warning: #ffb648;
+  --info: #4a7dff;
+
+  --border: #2b3268;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 10px 30px rgb(0 0 0 / 35%);
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---- Scrollbars ---------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ---- Shared primitives --------------------------------------------------- */
+.su-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.su-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease,
+    opacity 0.18s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--bg-surface-hover);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.is-primary {
+    background: var(--accent-gradient);
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+  }
+
+  &.is-danger {
+    background: transparent;
+    border-color: var(--danger);
+    color: var(--danger);
+
+    &:hover:not(:disabled) {
+      background: rgb(255 92 114 / 12%);
+    }
+  }
+
+  &.is-ghost {
+    background: transparent;
+    border-color: var(--border);
+
+    &:hover:not(:disabled) {
+      background: var(--bg-surface-hover);
+    }
+  }
+}
+
+.su-input,
+.su-select,
+.su-textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font: inherit;
+  transition: border-color 0.18s ease;
+
+  &::placeholder {
+    color: var(--text-muted);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  &.is-invalid {
+    border-color: var(--danger);
+  }
+}
+
+.su-textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.su-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.su-field {
+  margin-bottom: 1rem;
+}
+
+.su-error {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--danger);
+}
+
+.su-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+
+  &.is-hero {
+    background: rgb(46 204 143 / 15%);
+    color: var(--success);
+  }
+  &.is-villain {
+    background: rgb(255 92 114 / 15%);
+    color: var(--danger);
+  }
+  &.is-antihero {
+    background: rgb(255 182 72 / 15%);
+    color: var(--warning);
+  }
+}
+
+/* ---- Loading / empty states --------------------------------------------- */
+.su-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: su-spin 0.8s linear infinite;
+}
+
+@keyframes su-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.su-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  padding: 3.5rem 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

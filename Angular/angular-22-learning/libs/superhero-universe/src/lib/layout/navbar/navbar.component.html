@@ -1,0 +1,41 @@
+<header class="navbar">
+  <div class="navbar__spacer"></div>
+
+  @if (user(); as currentUser) {
+    <div class="navbar__user">
+      <button
+        type="button"
+        class="user-chip"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen()"
+        aria-haspopup="menu"
+      >
+        <span class="user-chip__avatar">{{ initials(currentUser.username) }}</span>
+        <span class="user-chip__meta">
+          <span class="user-chip__name">{{ currentUser.username }}</span>
+          @if (isAdmin()) {
+            <span class="user-chip__role">Admin</span>
+          }
+        </span>
+        <span class="user-chip__caret" aria-hidden="true"></span>
+      </button>
+
+      @if (menuOpen()) {
+        <div class="menu" role="menu">
+          <div class="menu__header">
+            <span class="menu__name">{{ currentUser.username }}</span>
+            <span class="menu__email">{{ currentUser.email }}</span>
+          </div>
+          <div class="menu__roles">
+            @for (role of currentUser.roles; track role) {
+              <span class="su-badge">{{ role }}</span>
+            }
+          </div>
+          <button type="button" class="menu__action" role="menuitem" (click)="logout()">
+            Sign out
+          </button>
+        </div>
+      }
+    </div>
+  }
+</header>

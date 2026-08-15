@@ -1,0 +1,161 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  width: 250px;
+  flex-shrink: 0;
+  padding: 1.5rem 1rem;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0 0.5rem;
+}
+
+.sidebar__logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 16px rgb(108 92 231 / 55%);
+  flex-shrink: 0;
+}
+
+.sidebar__name {
+  font-size: 1.02rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+
+  strong {
+    font-weight: 700;
+  }
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar__section-title {
+  padding: 0 0.75rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+
+  &:hover:not(.is-disabled) {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+  }
+
+  &.is-active {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    font-weight: 500;
+
+    /* Left accent rail, matching the reference design. Sits just inside the sidebar's
+       1rem padding rather than at -1rem, which pushed it flush against the viewport edge. */
+    &::before {
+      content: '';
+      position: absolute;
+      left: -0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 58%;
+      border-radius: 3px;
+      background: var(--accent-strong);
+    }
+  }
+
+  &.is-disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+}
+
+.nav-item__label {
+  flex: 1;
+}
+
+.nav-item__soon {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 0.1rem 0.4rem;
+}
+
+/* Icons come from <hero-icon>, which inherits currentColor from .nav-item */
+hero-icon {
+  opacity: 0.85;
+}
+
+.nav-item.is-active hero-icon {
+  opacity: 1;
+  color: var(--accent-strong);
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .sidebar__nav {
+    flex-direction: row;
+  }
+
+  .sidebar__section {
+    flex-direction: row;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .sidebar__section-title,
+  .nav-item__soon {
+    display: none;
+  }
+
+  .nav-item.is-active::before {
+    display: none;
+  }
+}

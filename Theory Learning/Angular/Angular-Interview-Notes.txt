@@ -62,6 +62,16 @@ TESTING
 - Vitest is now a first-class option alongside Jasmine/Karma for unit tests in newer Angular CLI versions.
 - Prefer testing behavior/output over implementation details; mock HttpClient via HttpTestingController.
 
+PATTERNS USED IN THIS PROJECT (WORTH BEING ABLE TO EXPLAIN)
+- Functional interceptors (HttpInterceptorFn) instead of class-based: registered via provideHttpClient(withInterceptors([...])). Order matters and is the order given in that array.
+- Transparent token refresh in an interceptor: catch a 401, call the refresh endpoint, then RETRY the original request with the new token. The subtlety is concurrency - if five requests 401 at once you must not fire five refreshes. The fix is a module-level "isRefreshing" flag plus a BehaviorSubject that the queued requests wait on (filter + take(1) + switchMap), so one refresh serves them all.
+- Debounced search: searchControl.valueChanges.pipe(debounceTime(350), distinctUntilChanged()). debounceTime stops a request per keystroke; distinctUntilChanged additionally skips the request when the text ends up unchanged (type a letter, delete it).
+- toSignal() / takeUntilDestroyed() from @angular/core/rxjs-interop bridge RxJS into signals and auto-unsubscribe on destroy, removing manual ngOnDestroy teardown.
+- withComponentInputBinding() on provideRouter lets route params bind directly to input() signals, so a component reading an :id never has to inject ActivatedRoute.
+- Route inputs are populated BEFORE ngOnInit, so ngOnInit is the correct place to read them. Reading them in the constructor is too early (hacks like queueMicrotask are a smell).
+- Guards are UX only, never security. An Angular guard just avoids showing a page that would fail anyway - the API re-checks authorization on every request, because anything enforced in the browser can be bypassed with devtools.
+- Route ordering matters: 'superheroes/new' must be declared BEFORE 'superheroes/:id', or the :id route matches "new" first and tries to load a hero with that id.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - Difference between NgModules and standalone components, and why Angular moved to standalone-by-default.
 - How OnPush change detection works and when it can cause a UI to appear "stuck".

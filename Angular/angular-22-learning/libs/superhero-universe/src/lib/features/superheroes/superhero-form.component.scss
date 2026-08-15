@@ -1,0 +1,61 @@
+.form-page {
+  max-width: 820px;
+}
+
+.form-page__back {
+  display: inline-block;
+  margin-bottom: 1.2rem;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.form-page__title {
+  font-size: 1.55rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-page__panel {
+  margin-bottom: 1.2rem;
+}
+
+.form-page__legend {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.15rem;
+}
+
+.form-page__hint {
+  margin: -0.7rem 0 1.15rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0 1rem;
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+.form-page__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}

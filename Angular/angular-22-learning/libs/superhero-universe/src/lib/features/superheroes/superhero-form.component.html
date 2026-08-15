@@ -1,0 +1,121 @@
+@if (loading()) {
+  <div class="su-state">
+    <div class="su-spinner"></div>
+    <p>Loading hero…</p>
+  </div>
+} @else {
+  <section class="form-page">
+    <a class="form-page__back" routerLink="/superheroes">&larr; Back to all heroes</a>
+
+    <h1 class="form-page__title">
+      {{ isEdit() ? 'Edit hero' : 'Create hero' }}
+    </h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="su-card form-page__panel">
+        <h2 class="form-page__legend">Identity</h2>
+
+        <div class="form-row">
+          <div class="su-field">
+            <label class="su-label" for="name">Name *</label>
+            <input
+              id="name"
+              class="su-input"
+              [class.is-invalid]="invalid('name')"
+              formControlName="name"
+              placeholder="e.g. Nightblade"
+            />
+            @if (invalid('name')) {
+              <p class="su-error">Hero name is required (max 100 characters).</p>
+            }
+          </div>
+
+          <div class="su-field">
+            <label class="su-label" for="realName">Real name</label>
+            <input id="realName" class="su-input" formControlName="realName" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="su-field">
+            <label class="su-label" for="universe">Universe *</label>
+            <input
+              id="universe"
+              class="su-input"
+              [class.is-invalid]="invalid('universe')"
+              formControlName="universe"
+              placeholder="Marvel, DC, or your own"
+              list="universe-options"
+            />
+            <datalist id="universe-options">
+              <option value="Marvel"></option>
+              <option value="DC"></option>
+            </datalist>
+            @if (invalid('universe')) {
+              <p class="su-error">Universe is required.</p>
+            }
+          </div>
+
+          <div class="su-field">
+            <label class="su-label" for="alignment">Alignment *</label>
+            <select id="alignment" class="su-select" formControlName="alignment">
+              @for (option of alignments; track option) {
+                <option [value]="option">{{ option }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="imageUrl">Image URL</label>
+          <input id="imageUrl" class="su-input" formControlName="imageUrl" placeholder="https://…" />
+        </div>
+
+        <div class="su-field">
+          <label class="su-label" for="description">Description</label>
+          <textarea id="description" class="su-textarea" formControlName="description"></textarea>
+        </div>
+      </div>
+
+      <div class="su-card form-page__panel">
+        <h2 class="form-page__legend">Attributes</h2>
+        <p class="form-page__hint">Each value is 0-100.</p>
+
+        <div class="su-field">
+          <label class="su-label" for="powerLevel">
+            Overall power level — <strong>{{ form.controls.powerLevel.value }}</strong>
+          </label>
+          <input
+            id="powerLevel"
+            type="range"
+            min="0"
+            max="100"
+            class="slider"
+            formControlName="powerLevel"
+          />
+        </div>
+
+        @for (key of statKeys; track key) {
+          <div class="su-field">
+            <label class="su-label" [attr.for]="key">
+              <span class="capitalize">{{ key }}</span> —
+              <strong>{{ form.get(key)?.value }}</strong>
+            </label>
+            <input [id]="key" type="range" min="0" max="100" class="slider" [formControlName]="key" />
+          </div>
+        }
+      </div>
+
+      <div class="form-page__actions">
+        <a class="su-btn is-ghost" routerLink="/superheroes">Cancel</a>
+        <button type="submit" class="su-btn is-primary" [disabled]="submitting()">
+          @if (submitting()) {
+            Saving…
+          } @else {
+            {{ isEdit() ? 'Save changes' : 'Create hero' }}
+          }
+        </button>
+      </div>
+    </form>
+  </section>
+}
