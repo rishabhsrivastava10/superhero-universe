@@ -1,0 +1,44 @@
+CI/CD - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+CONTINUOUS INTEGRATION vs CONTINUOUS DELIVERY/DEPLOYMENT
+- CI: automatically build and test every push/PR — catches integration problems early, before merging.
+- Continuous Delivery: CI plus automatically preparing a deployable artifact (e.g. a Docker image) after every successful build — a human still triggers the actual deploy.
+- Continuous Deployment: goes one step further and deploys automatically to production on every passing pipeline — requires strong test coverage/confidence.
+
+TYPICAL PIPELINE STAGES (this project)
+- Trigger: on push / on pull_request to main (or a specific branch).
+- Restore: `dotnet restore` / `npm ci` (npm ci over npm install in CI — it's deterministic, uses the lockfile exactly, and fails if package.json/lockfile are out of sync).
+- Build: `dotnet build` / `ng build`.
+- Test: `dotnet test` / Angular unit tests — pipeline should fail (and block merge) if tests fail.
+- Build Docker images: only after tests pass — never build/push an image from unverified code.
+- (Optional/later) Deploy: push image to a registry, deploy to a target environment.
+
+GITHUB ACTIONS BASICS
+- A workflow (.github/workflows/*.yml) is triggered by an event (push, pull_request, schedule, workflow_dispatch).
+- A workflow contains one or more jobs; jobs run on a runner (e.g. ubuntu-latest) and contain a sequence of steps.
+- Jobs run in parallel by default unless a `needs:` dependency is declared between them.
+- `actions/checkout` pulls the repo; `actions/setup-dotnet` / `actions/setup-node` install the right SDK/runtime versions; caching (actions/cache, or built-in cache: in setup-node) speeds up repeated dependency installs.
+- Secrets (API keys, deployment credentials) are stored in GitHub repo/organization Settings > Secrets, referenced as `${{ secrets.NAME }}` — never hardcoded in the workflow file.
+
+BRANCHING STRATEGIES
+- Trunk-based development: short-lived feature branches merged frequently into main, favors small PRs and strong CI — pairs well with continuous delivery/deployment.
+- Git Flow: longer-lived develop/feature/release/hotfix branches — more ceremony, historically common in slower-release enterprise contexts.
+- For a personal portfolio project, a simple trunk-based approach (feature branch → PR → main) is enough to demonstrate the concept without unnecessary process overhead.
+
+QUALITY GATES
+- Pipeline should fail the build if tests fail, code doesn't compile, or (optionally) coverage/lint thresholds aren't met — a red pipeline should block merging, not just be a warning.
+- Branch protection rules on GitHub can require the CI check to pass before a PR can be merged.
+
+DEPLOYMENT STRATEGIES (CONCEPTUAL AWARENESS)
+- Blue-green: run two identical production environments, switch traffic over once the new version is verified — near-zero downtime, easy rollback (switch back).
+- Canary: roll the new version out to a small percentage of traffic first, expand gradually if healthy — limits blast radius of a bad release.
+- Rolling deployment: replace instances gradually one/few at a time.
+- Important: don't claim a deployment strategy is implemented if it isn't — for this project, be honest in the README about what's actually automated vs conceptual.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Explain the difference between continuous delivery and continuous deployment.
+- Why use `npm ci` instead of `npm install` in a CI pipeline?
+- How would you structure a GitHub Actions workflow so Docker images are only built after tests pass?
+- What's the purpose of branch protection rules alongside a CI pipeline?
+- Explain blue-green vs canary deployment and when you'd pick one over the other.

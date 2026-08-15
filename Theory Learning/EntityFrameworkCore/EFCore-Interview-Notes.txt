@@ -1,0 +1,53 @@
+ENTITY FRAMEWORK CORE - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+CORE CONCEPTS
+- DbContext represents a session with the database — unit of work + repository combined; DbSet<T> represents a table/query root for entity T.
+- EF Core is an ORM: it translates LINQ queries into SQL and materializes rows back into .NET objects (change tracking included, unless explicitly disabled).
+- Register DbContext as Scoped (AddDbContext default) — one instance per HTTP request in a web app.
+
+MIGRATIONS
+- `dotnet ef migrations add <Name>` generates a migration (Up/Down methods) by diffing the current model against the last snapshot.
+- `dotnet ef database update` applies pending migrations to the actual database.
+- Migrations should be reviewed before applying, especially in shared/production databases — auto-generated Down() methods aren't always safe to blindly trust for destructive changes (e.g. dropping a column with data).
+- Seed data can be applied via HasData() in OnModelCreating, or via a separate seeding step run at startup (better for larger/dynamic seed sets).
+
+CHANGE TRACKING & TRACKING vs NO-TRACKING
+- By default, queries are tracked — EF Core keeps a snapshot of loaded entities to detect changes on SaveChanges().
+- .AsNoTracking() skips this bookkeeping — meaningfully faster for read-only queries (e.g. GET list endpoints) since there's nothing to update.
+- Rule of thumb: use AsNoTracking() for anything you're not going to modify and save back.
+
+LOADING STRATEGIES
+- Eager loading: .Include()/.ThenInclude() — loads related data in the same query (or a small number of queries), avoids N+1 but can over-fetch if not needed.
+- Lazy loading: related data loads automatically on first access to a navigation property (requires proxies) — convenient but a common cause of N+1 query bugs if not careful.
+- Explicit loading: `context.Entry(entity).Collection(...).Load()` — load related data on demand, more control than lazy loading.
+
+THE N+1 PROBLEM
+- Classic bug: querying a list of parents, then accessing a child navigation property inside a loop — triggers one query per parent (N+1 queries total) instead of one query with a JOIN.
+- Fix: eager-load with .Include(), or project directly to a DTO with .Select() so EF Core can generate one efficient query.
+
+QUERYING
+- IQueryable<T> composes lazily — the actual SQL isn't generated/executed until the query is enumerated (ToList(), ToListAsync(), first access in a foreach, etc.).
+- .Select() projections let you fetch only the columns you need — better than loading full entities when you only need a few fields (reduces data transferred and mapping overhead).
+- Always use the *Async methods (ToListAsync, FirstOrDefaultAsync, SaveChangesAsync) in a web API to avoid blocking threads on I/O.
+
+RELATIONSHIPS
+- One-to-many: a single foreign key on the "many" side.
+- Many-to-many: EF Core 5+ supports implicit join tables, but for extra columns on the join itself (e.g. SuperheroTeam.JoinedDate), you model the join table as its own entity with two one-to-many relationships instead of a pure implicit M:M.
+- Fluent API (OnModelCreating) is generally preferred over data annotations for anything beyond the simplest constraints — keeps mapping concerns out of the entity class and in one place.
+
+CONCURRENCY & TRANSACTIONS
+- Optimistic concurrency: a rowversion/timestamp column detects if a row changed since it was read; SaveChanges throws DbUpdateConcurrencyException if a conflict is detected.
+- SaveChanges() wraps its operations in an implicit transaction; use an explicit transaction (BeginTransaction) when multiple SaveChanges calls or non-EF operations must succeed/fail together.
+
+PERFORMANCE PRACTICES
+- Add indexes for columns used in WHERE/JOIN/ORDER BY frequently (done via Fluent API HasIndex(), applied through a migration).
+- Avoid loading entire tables into memory to filter/page in C# — let the database do filtering/paging (Where/Skip/Take translated to SQL).
+- Compiled queries (EF.CompileAsyncQuery) can help in very hot, repeated query paths, though usually unnecessary at this project's scale.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- What's the N+1 problem and how do you detect/fix it with EF Core?
+- Difference between eager, lazy, and explicit loading — trade-offs of each?
+- Why use AsNoTracking(), and when would you NOT want it?
+- How do you model a many-to-many relationship that needs extra columns on the join table?
+- Explain optimistic concurrency and how EF Core implements it.

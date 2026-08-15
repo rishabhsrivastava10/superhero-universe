@@ -1,0 +1,8 @@
+GIT - LEARNING RESOURCES
+(Last updated: 2026-08-15)
+
+- Official Git documentation/reference: https://git-scm.com/doc
+- Pro Git book (free, the definitive deep-dive reference): https://git-scm.com/book/en/v2
+- GitHub Docs - Git and GitHub basics: https://docs.github.com/en/get-started
+- Learn Git Branching (interactive visual tutorial - excellent for merge/rebase intuition): https://learngitbranching.js.org/
+- Atlassian Git tutorials (clear conceptual explanations): https://www.atlassian.com/git/tutorials

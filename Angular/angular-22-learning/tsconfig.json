@@ -5,7 +5,7 @@
   "compilerOptions": {
     "paths": {
       "common-ui": ["./dist/common-ui"],
-      "managementsystem": ["./dist/managementsystem"]
+      "superhero-universe": ["./dist/superhero-universe"]
     },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
@@ -38,10 +38,10 @@
       "path": "./libs/common-ui/tsconfig.spec.json"
     },
     {
-      "path": "./libs/managementsystem/tsconfig.lib.json"
+      "path": "./libs/superhero-universe/tsconfig.lib.json"
     },
     {
-      "path": "./libs/managementsystem/tsconfig.spec.json"
+      "path": "./libs/superhero-universe/tsconfig.spec.json"
     }
   ]
 }

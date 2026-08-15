@@ -1,0 +1,41 @@
+DOCKER - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+CORE CONCEPTS
+- Image: a read-only, layered template (filesystem + metadata) built from a Dockerfile — it's the "class".
+- Container: a running (or stopped) instance of an image — it's the "object"; isolated process with its own filesystem view, network namespace, etc., but shares the host OS kernel (unlike a VM).
+- Container isolation is cheaper than VM isolation because there's no separate guest OS/kernel to boot — hence faster startup, smaller footprint.
+
+DOCKERFILE BASICS
+- FROM: base image to build on (e.g. mcr.microsoft.com/dotnet/sdk for build, mcr.microsoft.com/dotnet/aspnet for runtime).
+- Each instruction (RUN, COPY, etc.) creates a new layer; layers are cached — reordering so rarely-changing steps (restoring dependencies) happen before frequently-changing steps (copying source code) speeds up rebuilds significantly.
+- EXPOSE documents which port the container listens on (doesn't actually publish it — that's done at `docker run -p`).
+- ENTRYPOINT/CMD define what runs when the container starts.
+
+MULTI-STAGE BUILDS
+- Use one stage with the full SDK to build/publish the app, then copy only the compiled output into a smaller final runtime-only image — keeps the shipped image small and avoids including build tools/source code in production.
+- Typical .NET pattern: `FROM sdk AS build` → dotnet publish → `FROM aspnet AS final` → COPY --from=build.
+
+NETWORKING
+- Containers on the same user-defined Docker network can reach each other by container/service name (Docker's internal DNS) — e.g. the API container connects to "sqlserver:1433" rather than localhost.
+- Port mapping (-p host:container) exposes a container's internal port to the host machine.
+
+VOLUMES
+- Named volumes (or bind mounts) persist data outside the container's writable layer — essential for a database container (e.g. SQL Server data files), since containers are otherwise ephemeral (deleting the container loses its data).
+- Bind mounts map a host directory directly into the container — useful for local dev (live code reload) but ties the container to the host's filesystem layout.
+
+ENVIRONMENT VARIABLES & SECRETS
+- Pass configuration (connection strings, JWT signing key, etc.) via environment variables rather than baking them into the image — keeps images environment-agnostic and avoids committing secrets.
+- docker-compose supports an `.env` file and `environment:`/`env_file:` per service; never commit a `.env` containing real secrets to source control.
+
+DOCKER COMPOSE
+- Defines multi-container applications declaratively (services, networks, volumes) in one docker-compose.yml — `docker compose up` builds/starts everything together.
+- `depends_on` controls startup order but does NOT wait for a dependency to be "ready" (e.g. SQL Server accepting connections) — often need a healthcheck or retry logic in the dependent service.
+- Typical services here: frontend (Angular, served via nginx after build), backend (ASP.NET Core API), db (SQL Server).
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Difference between an image and a container.
+- Why use multi-stage builds, and what problem do they solve?
+- How do containers on the same Docker network find each other?
+- Why do containers need volumes for a database, specifically?
+- What's the risk of relying on `depends_on` alone for startup ordering with a database?

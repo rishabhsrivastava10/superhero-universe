@@ -1,0 +1,70 @@
+ANGULAR - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+COMPONENTS & STANDALONE APIS
+- Standalone components (default since Angular 17+) remove the need for NgModules; a component declares its own imports array.
+- @Component decorator: selector, template/templateUrl, styles/styleUrl, imports (for standalone).
+- Component lifecycle hooks, in order: constructor -> ngOnChanges -> ngOnInit -> ngDoCheck -> ngAfterContentInit -> ngAfterContentChecked -> ngAfterViewInit -> ngAfterViewChecked -> ngOnDestroy.
+- ngOnChanges fires only when an @Input() reference changes; ngDoCheck fires on every change detection cycle (use sparingly, it's expensive).
+
+DATA BINDING & TEMPLATE SYNTAX
+- Interpolation {{ }}, property binding [prop], event binding (event), two-way binding [(ngModel)].
+- Modern control flow: @if / @else, @for (...; track item.id), @switch — replaces *ngIf/*ngFor/*ngSwitch, compiles to more efficient code and enforces `track` in loops.
+- @for's `track` expression is mandatory and critical for performance — without a stable track key, Angular re-renders/re-creates DOM nodes unnecessarily.
+
+SIGNALS (modern reactivity model)
+- signal(), computed(), effect() — a fine-grained reactivity system alternative/complement to RxJS + Zone.js change detection.
+- computed() is lazy and memoized — only recalculates when a dependency signal changes.
+- effect() runs side effects in response to signal changes; avoid writing to signals inside effect() that the same effect reads (avoid infinite loops).
+- Signal-based inputs: input(), input.required(); signal-based outputs: output().
+- Zoneless change detection is emerging — signals let Angular skip Zone.js entirely for detecting what changed.
+
+CHANGE DETECTION
+- Default strategy checks the whole component tree on any async event (via Zone.js monkey-patching browser APIs).
+- OnPush strategy: component only re-checks when an @Input() reference changes, an event originates from the component/its children, or a signal it reads changes — big performance win, requires immutable data patterns.
+- ChangeDetectorRef.markForCheck() / detectChanges() for manual control.
+
+DEPENDENCY INJECTION
+- Hierarchical injectors: root (providedIn: 'root', app-wide singleton), route-level, component-level.
+- inject() function usable in constructors, field initializers, and factory functions — alternative to constructor injection, common in standalone/functional code (guards, interceptors, resolvers).
+- Providers: useClass, useValue, useFactory, useExisting.
+
+RXJS vs SIGNALS
+- Observables: multiple values over time, support operators (map, filter, switchMap, debounceTime, etc.), need explicit subscription management (async pipe, takeUntilDestroyed()).
+- switchMap cancels the previous inner observable — ideal for typeahead search; mergeMap runs concurrently; concatMap queues sequentially; exhaustMap ignores new emissions while one is active (good for preventing duplicate form submits).
+- Signals are pull-based, synchronous, always have a current value — better fit for local component state than for async streams of events.
+
+FORMS
+- Reactive Forms: FormGroup/FormControl/FormArray built programmatically, synchronous validation via Validators, async validators, easier to unit test than template-driven forms.
+- Template-driven forms: simpler for trivial forms, relies on ngModel and directives in the template.
+- Custom validators: a function returning null (valid) or a ValidationErrors object.
+- Cross-field validation lives on the FormGroup, not an individual control.
+
+ROUTING
+- Route guards: CanActivate, CanActivateChild, CanDeactivate, CanMatch — modern Angular favors functional guards (plain functions) over class-based guards.
+- Lazy loading via loadComponent / loadChildren with dynamic import() — splits bundles per feature, improves initial load time.
+- Route resolvers pre-fetch data before activating a route.
+- Route parameters: paramMap (observable) vs snapshot.paramMap (one-time read).
+
+HTTP & INTERCEPTORS
+- HttpClient returns Observables; functional interceptors (HttpInterceptorFn) are the modern pattern for attaching JWTs, handling errors globally, and logging.
+- Interceptor chain order matters — registered order = execution order for the request, reverse for the response.
+- Centralize error handling in an interceptor rather than duplicating try/catch in every component.
+
+PERFORMANCE
+- OnPush + immutable data + trackBy/track in loops are the three biggest wins.
+- Lazy-load features; avoid eagerly importing large third-party libraries in the root bundle.
+- Debounce user input (debounceTime + distinctUntilChanged) before firing HTTP search requests.
+- Avoid function calls directly in templates (re-evaluated every change detection cycle) — prefer pipes (pure by default) or precomputed signals/properties.
+
+TESTING
+- TestBed configures a testing module; component tests typically use ComponentFixture.
+- Vitest is now a first-class option alongside Jasmine/Karma for unit tests in newer Angular CLI versions.
+- Prefer testing behavior/output over implementation details; mock HttpClient via HttpTestingController.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Difference between NgModules and standalone components, and why Angular moved to standalone-by-default.
+- How OnPush change detection works and when it can cause a UI to appear "stuck".
+- Difference between signals and RxJS observables, and when to choose each.
+- How Angular's DI hierarchy resolves a provider.
+- How you would implement token refresh transparently using an HttpInterceptor.

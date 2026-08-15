@@ -1,0 +1,8 @@
+CI/CD - LEARNING RESOURCES
+(Last updated: 2026-08-15)
+
+- GitHub Actions official documentation: https://docs.github.com/en/actions
+- GitHub Actions quickstart: https://docs.github.com/en/actions/quickstart
+- GitHub Actions for .NET (build/test workflow guide): https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+- GitHub Actions for Node.js/Angular (build/test workflow guide): https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+- Trunk-based development overview: https://trunkbaseddevelopment.com/

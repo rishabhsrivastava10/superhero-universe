@@ -1,5 +1,5 @@
 {
-  "name": "managementsystem",
+  "name": "superhero-universe",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^22.0.0",

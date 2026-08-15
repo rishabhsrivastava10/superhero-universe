@@ -93,20 +93,20 @@
         }
       }
     },
-    "managementsystem": {
+    "superhero-universe": {
       "projectType": "library",
-      "root": "libs/managementsystem",
-      "sourceRoot": "libs/managementsystem/src",
-      "prefix": "ms",
+      "root": "libs/superhero-universe",
+      "sourceRoot": "libs/superhero-universe/src",
+      "prefix": "hero",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
           "configurations": {
             "production": {
-              "tsConfig": "libs/managementsystem/tsconfig.lib.prod.json"
+              "tsConfig": "libs/superhero-universe/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "libs/managementsystem/tsconfig.lib.json"
+              "tsConfig": "libs/superhero-universe/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -114,7 +114,7 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "libs/managementsystem/tsconfig.spec.json"
+            "tsConfig": "libs/superhero-universe/tsconfig.spec.json"
           }
         }
       }

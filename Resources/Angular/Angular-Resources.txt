@@ -1,0 +1,10 @@
+ANGULAR - LEARNING RESOURCES
+(Last updated: 2026-08-15)
+
+- Official docs (the best source of truth for current Angular, incl. signals/standalone): https://angular.dev/
+- Official tutorials (interactive, hands-on): https://angular.dev/tutorials
+- RxJS official docs (operators reference): https://rxjs.dev/
+- Angular blog (release notes, new features): https://blog.angular.dev/
+- freeCodeCamp (general web dev tutorials, includes Angular content): https://www.freecodecamp.org/
+- roadmap.sh Angular roadmap (structured topic checklist): https://roadmap.sh/angular
+- MDN Web Docs (underlying web platform APIs Angular builds on - fetch, DOM, etc.): https://developer.mozilla.org/

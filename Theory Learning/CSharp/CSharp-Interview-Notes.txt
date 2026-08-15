@@ -1,0 +1,61 @@
+C# - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+OOP FUNDAMENTALS
+- Four pillars: encapsulation, abstraction, inheritance, polymorphism.
+- Abstract class vs interface: abstract classes can hold state/implementation and a constructor, support single inheritance only; interfaces (C# 8+) can have default method implementations but a class can implement many interfaces.
+- Method overriding requires `virtual` (base) + `override` (derived); `new` hides a base member instead of overriding it (usually a code smell/bug source).
+- `sealed` prevents further inheritance or overriding.
+
+VALUE TYPES vs REFERENCE TYPES
+- Value types (struct, int, bool, enum, DateTime) are copied by value and typically live on the stack (or inline in containing objects); reference types (class, string, array, delegate) are copied by reference and live on the heap.
+- `string` is a reference type but immutable — every "modification" creates a new string; use StringBuilder for heavy concatenation in loops.
+- Boxing/unboxing: converting a value type to `object` (boxing) allocates on the heap — avoid in hot paths.
+
+NULLABILITY
+- Nullable reference types (`string?` vs `string`) — compiler warnings help catch potential null-reference exceptions at compile time (opt-in via `<Nullable>enable</Nullable>`).
+- Nullable value types: `int?` is shorthand for `Nullable<int>`.
+- Null-conditional (`?.`), null-coalescing (`??`), and null-coalescing assignment (`??=`) operators.
+
+ASYNC/AWAIT
+- `async`/`await` is compiler-generated state machine sugar over Tasks — it does NOT create new threads by itself; it frees the calling thread while I/O-bound work completes.
+- Always propagate `CancellationToken` through async chains for cancellable operations (especially in ASP.NET Core request handling).
+- `ConfigureAwait(false)` avoids capturing the synchronization context — relevant in library code, largely moot in ASP.NET Core (no SynchronizationContext by default) but still good practice in shared libraries.
+- Avoid `async void` except for event handlers — exceptions in `async void` methods can crash the process since there's no Task to observe/await.
+- `Task.WhenAll` runs tasks concurrently and awaits all; `Task.WhenAny` resolves when the first completes.
+
+LINQ
+- Deferred execution: most LINQ queries (Where, Select, OrderBy) don't run until enumerated (foreach, ToList(), etc.) — a common source of subtle bugs if the underlying data changes between definition and enumeration.
+- IEnumerable<T> (in-memory, deferred) vs IQueryable<T> (translated to SQL by EF Core, deferred, executes at the database).
+- Common methods: Where, Select, SelectMany, GroupBy, Join, OrderBy/ThenBy, Any/All, FirstOrDefault vs Single vs SingleOrDefault (Single throws if more than one match — use deliberately, not as a habit).
+
+GENERICS & DELEGATES
+- Generic constraints: `where T : class`, `where T : struct`, `where T : new()`, `where T : SomeBaseClass`.
+- Delegates are type-safe function pointers; `Action<T>` (no return value), `Func<T,TResult>` (returns a value), `Predicate<T>` (returns bool).
+- Events are a controlled wrapper around multicast delegates (subscribers can `+=`/`-=` but not directly invoke or clear the invocation list from outside the declaring class).
+
+RECORDS vs CLASSES
+- `record` types (C# 9+) give value-based equality and immutability-by-convention for free — ideal for DTOs.
+- `record struct` combines value-type semantics with record-style equality/with-expressions.
+- `with` expressions create a modified copy of an immutable record.
+
+EXCEPTION HANDLING
+- Catch specific exception types before general ones; avoid empty catch blocks that swallow errors silently.
+- `finally` always runs (even after a `return` in try) — use for guaranteed cleanup (though `using`/`IDisposable` is usually cleaner for resource cleanup).
+- Custom exceptions should derive from `Exception` (or a more specific built-in base) and add meaningful context, not just a message string.
+- Exceptions are for exceptional/unexpected conditions — not for ordinary control flow (e.g. don't use exceptions for "user not found", prefer a nullable/Result return).
+
+DEPENDENCY INJECTION (LANGUAGE-LEVEL CONCEPT)
+- Constructor injection is preferred over property/service-locator injection — makes dependencies explicit and testable.
+- Favor depending on interfaces (IFooService) over concrete classes so implementations can be swapped/mocked in tests.
+
+MEMORY & GC (CONCEPTUAL, RARELY DEEP-DIVE AT 3 YOE BUT GOOD TO KNOW)
+- .NET's GC is generational (Gen 0/1/2) — short-lived objects are collected cheaply and frequently; long-lived objects are promoted and collected less often.
+- `IDisposable`/`using` pattern releases unmanaged resources deterministically (file handles, DB connections) rather than waiting on the GC.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Explain the difference between `IEnumerable` and `IQueryable` and why it matters with EF Core.
+- What happens if an exception is thrown inside an `async void` method?
+- When would you use a `record` instead of a `class`?
+- Explain deferred execution in LINQ with an example that could surprise a developer.
+- Why prefer constructor injection over a service locator pattern?

@@ -1,0 +1,54 @@
+TYPESCRIPT - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+TYPE SYSTEM BASICS
+- TypeScript is structurally typed ("duck typing") — two types are compatible if their shapes match, regardless of declared name.
+- `interface` vs `type`: interfaces can be re-opened/merged (declaration merging) and are generally preferred for object shapes meant to be extended; `type` aliases can express unions, intersections, tuples, and mapped types that interfaces can't.
+- `unknown` vs `any`: `any` disables type checking entirely; `unknown` forces a type check/narrowing before you can use the value — always prefer `unknown` at API boundaries.
+- `never` represents a value that never occurs (e.g. a function that always throws, or an exhaustive switch's default branch).
+
+UNIONS, INTERSECTIONS & NARROWING
+- Union types (A | B) represent "one of"; intersection types (A & B) represent "all of" combined.
+- Type narrowing: typeof checks, instanceof checks, `in` operator, discriminated unions (a shared literal "kind"/"type" field lets the compiler narrow inside a switch).
+- User-defined type guards: a function returning `value is SomeType`.
+
+GENERICS
+- Generics let you write reusable functions/classes/interfaces parameterized by type (e.g. `function identity<T>(x: T): T`).
+- Generic constraints: `<T extends SomeShape>` restricts what T can be while still preserving specific typing.
+- Common in Angular: `Observable<T>`, `HttpClient.get<T>(url)`.
+
+UTILITY TYES
+- Partial<T> — all properties optional; Required<T> — all properties required.
+- Pick<T, K> — subset of keys; Omit<T, K> — all but the given keys.
+- Record<K, V> — object type with keys K all mapped to type V.
+- Readonly<T> — makes all properties immutable at the type level (compile-time only, no runtime enforcement).
+
+CLASSES & OOP FEATURES
+- Access modifiers: public (default), private, protected, and `#` native private fields (real runtime privacy, unlike `private` which is compile-time only).
+- Parameter properties: `constructor(private readonly service: FooService) {}` declares and assigns a field in one line.
+- Abstract classes vs interfaces: abstract classes can contain implementation and constructors; interfaces are pure shape contracts.
+
+DECORATORS
+- Used heavily by Angular (@Component, @Injectable, @Input, @Output) — decorators are functions that modify a class, method, accessor, or property at definition time.
+- Compiler flag `experimentalDecorators` historically required; the TC39 decorators proposal is stabilizing this.
+
+ASYNC PATTERNS
+- Promise<T> represents a single eventual value; async/await is syntax sugar over Promises.
+- Always handle rejections — unhandled promise rejections can crash Node processes or silently fail in browsers.
+- Observables (RxJS) are a separate, more powerful abstraction: multiple values over time, cancellable, composable via operators — not built into the language itself.
+
+STRICT MODE & COMPILER OPTIONS
+- `strict: true` bundles strictNullChecks, noImplicitAny, strictFunctionTypes, etc. — always enable it on real projects.
+- strictNullChecks forces you to explicitly handle `null`/`undefined` rather than assuming a value is always present.
+- `noImplicitAny` catches accidentally untyped parameters/variables.
+
+MODULES
+- ES modules (`import`/`export`) are standard; avoid mixing with CommonJS (`require`) unless necessary for interop.
+- Type-only imports (`import type { Foo } from './foo'`) avoid pulling runtime code in just for a type.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Explain structural vs nominal typing and why TypeScript chose structural typing.
+- What's the difference between `unknown` and `any`, and why is `unknown` safer?
+- How would you model a discriminated union for API responses (success vs error)?
+- What's the difference between `interface` and `type`, and when would you pick one over the other?
+- Why does `Readonly<T>` not prevent mutation at runtime?

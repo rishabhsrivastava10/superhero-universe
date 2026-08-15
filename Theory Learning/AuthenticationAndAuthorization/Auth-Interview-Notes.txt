@@ -1,0 +1,46 @@
+AUTHENTICATION & AUTHORIZATION (JWT) - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+AUTHENTICATION vs AUTHORIZATION
+- Authentication: "who are you?" — verifying identity (login).
+- Authorization: "what are you allowed to do?" — checking permissions/roles after identity is known.
+- Order in the pipeline matters: authentication middleware must run before authorization middleware.
+
+JWT STRUCTURE
+- Header.Payload.Signature — three Base64Url-encoded segments separated by dots.
+- Header: algorithm + token type (e.g. HS256, JWT).
+- Payload (claims): identity info (sub, username, roles) plus standard claims (iss=issuer, aud=audience, exp=expiration, iat=issued-at). The payload is NOT encrypted, only encoded — never put secrets in it.
+- Signature: HMAC or RSA signature over header+payload using a server-held secret/key — proves the token wasn't tampered with; it does NOT provide confidentiality.
+
+ACCESS TOKENS vs REFRESH TOKENS
+- Access token: short-lived (minutes), sent with every API request (Authorization: Bearer <token>), stateless validation.
+- Refresh token: longer-lived, used only to obtain a new access token without re-entering credentials — should be stored more securely (httpOnly cookie ideally) and revocable server-side (unlike a plain JWT access token, which can't be "un-issued" before it expires).
+- Refresh token rotation: issue a new refresh token each time one is used, invalidate the old one — limits damage if a refresh token is stolen.
+
+PASSWORD HASHING
+- Never store plain-text passwords — always hash with a slow, salted algorithm designed for passwords: bcrypt, Argon2, or PBKDF2 (NOT plain SHA-256/MD5, which are fast general-purpose hashes vulnerable to brute-force/rainbow tables).
+- ASP.NET Core Identity's PasswordHasher (PBKDF2-based) is a solid built-in option if not rolling your own.
+- Salting is built into these algorithms/libraries — never reuse a single global salt.
+
+ROLE-BASED vs CLAIMS-BASED / POLICY-BASED AUTHORIZATION
+- Role-based: [Authorize(Roles = "Admin")] — simple, works for coarse-grained permissions.
+- Claims-based: authorize based on any claim in the token (not just a "role" claim) — more flexible.
+- Policy-based: named policies (e.g. "CanManageSuperheroes") composed of one or more requirements — the most maintainable approach as rules grow more complex than a single role check.
+
+ANGULAR-SIDE AUTH
+- Auth guard (functional CanActivate/CanMatch) blocks navigation to protected routes if not authenticated (and optionally checks role for admin-only routes).
+- HTTP interceptor attaches the Authorization: Bearer <token> header to outgoing requests, and can catch 401 responses to trigger a silent refresh or redirect to login.
+- Where to store the token: localStorage is simple but vulnerable to XSS (any injected script can read it); an httpOnly cookie is safer against XSS but needs CSRF protection instead — there's no perfect answer, only trade-offs; httpOnly cookie + CSRF token is generally considered the stronger default for browser apps.
+
+SECURITY PITFALLS TO AVOID
+- Don't trust client-side role checks alone — the backend must re-check authorization on every request; a hidden Angular button is not security.
+- Always validate JWT signature, expiration, issuer, and audience server-side — don't just decode-and-trust.
+- Rate-limit and log failed login attempts to detect brute-force attempts.
+- HTTPS everywhere — a JWT sent over plain HTTP can be intercepted.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Walk through what happens end-to-end from login to an authorized API call using JWT.
+- Why can't you revoke a JWT access token before it expires, and how do refresh tokens help mitigate that?
+- Why is bcrypt/Argon2 preferred over SHA-256 for password hashing?
+- Where would you store a JWT in an Angular app, and what are the trade-offs?
+- Explain the difference between role-based and policy-based authorization in ASP.NET Core.

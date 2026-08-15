@@ -1,0 +1,58 @@
+ASP.NET CORE - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+MIDDLEWARE PIPELINE
+- ASP.NET Core requests flow through an ordered pipeline of middleware components (app.Use...); each middleware can act before and after calling the next one (`await next(context)`).
+- Order matters a lot: e.g. UseExceptionHandler/global exception middleware should be early; UseRouting before UseAuthentication/UseAuthorization; UseAuthorization must come after UseAuthentication.
+- Middleware can short-circuit the pipeline (not call next) — e.g. returning 401 immediately if no auth token.
+- Built-in middleware: UseHttpsRedirection, UseStaticFiles, UseRouting, UseCors, UseAuthentication, UseAuthorization, UseExceptionHandler.
+
+DEPENDENCY INJECTION & SERVICE LIFETIMES
+- Built-in DI container registers services in Program.cs via builder.Services.
+- Lifetimes: Transient (new instance every time it's requested), Scoped (one instance per HTTP request), Singleton (one instance for the app's lifetime).
+- Common bug: injecting a Scoped service into a Singleton — causes a captured-dependency error or stale data, since the Singleton only gets it once.
+- DbContext is registered Scoped by default (AddDbContext) — matches the request lifecycle.
+
+CONTROLLERS vs MINIMAL APIS
+- Controllers (`[ApiController]`, inherit ControllerBase): support filters, model binding conventions, easier to organize a large surface area with attribute routing.
+- Minimal APIs (`app.MapGet(...)`, etc.): less ceremony, good for small services/microservices, but the app in this project uses controllers (`--use-controllers`) for structure/discoverability at this scale.
+- `[ApiController]` attribute enables automatic 400 responses on model validation failure, binding source inference, and problem-details responses.
+
+MODEL BINDING & VALIDATION
+- [FromBody], [FromQuery], [FromRoute], [FromHeader] control where a parameter's value comes from.
+- Data annotations ([Required], [Range], [StringLength]) provide basic validation; FluentValidation is preferred for complex/business rule validation, keeping validation logic out of the model class itself.
+- ModelState.IsValid is checked automatically with [ApiController] — invalid requests short-circuit with a 400 before the action method body runs.
+
+DTOs & THE SERVICE LAYER
+- Controllers should be thin: parse the request, call a service, map the result, return a response — no business logic, no direct DbContext queries in the controller.
+- DTOs decouple the API's public contract from internal EF Core entities — prevents leaking internal-only fields (e.g. PasswordHash) and allows the API shape to evolve independently of the DB schema.
+- AutoMapper or manual mapping — manual mapping is often clearer for a project this size and avoids "magic" mapping bugs.
+
+GLOBAL EXCEPTION HANDLING
+- Centralize error handling via exception-handling middleware (or the newer IExceptionHandler interface in .NET 8+) instead of try/catch in every controller action.
+- Return a consistent error shape (status code, message, timestamp) regardless of which layer threw.
+- Never leak stack traces or internal exception details to clients in production.
+
+LOGGING
+- ILogger<T> is injected via DI; use structured logging (message templates with named placeholders, e.g. `_logger.LogWarning("Login failed for {Username}", username)`) rather than string concatenation — enables querying logs by field, not just text search.
+- Log levels: Trace, Debug, Information, Warning, Error, Critical — pick the right level so production logs aren't noisy.
+- Never log secrets: passwords, raw tokens, connection strings.
+
+CONFIGURATION
+- appsettings.json + appsettings.{Environment}.json + environment variables + user secrets (dev only) layer on top of each other; environment variables should override file-based config in production (12-factor app style).
+- Options pattern (IOptions<T>/IOptionsSnapshot<T>) binds a config section to a strongly-typed class instead of scattering IConfiguration["Key"] lookups everywhere.
+- Never commit real secrets/connection strings to source control — use User Secrets locally, environment variables/secret managers in deployed environments.
+
+SWAGGER / OPENAPI
+- Auto-generates interactive API documentation from controller/action metadata and XML doc comments.
+- Useful for manual testing and as a live contract for frontend developers integrating against the API.
+
+CORS
+- Must be explicitly configured (AddCors/UseCors) to allow the Angular dev server (different origin/port) to call the API — a very common local-dev stumbling block.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Explain the ASP.NET Core middleware pipeline and why ordering matters.
+- What's the difference between Transient, Scoped, and Singleton, and what bug happens if you inject Scoped into Singleton?
+- Why keep business logic out of controllers — what does a service layer buy you?
+- How do you avoid leaking internal entity fields (like password hashes) through your API?
+- How would you implement centralized error handling that returns a consistent response shape?

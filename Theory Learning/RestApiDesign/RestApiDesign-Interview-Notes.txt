@@ -1,0 +1,57 @@
+REST API DESIGN - INTERVIEW PREP NOTES
+(Last updated: 2026-08-15)
+
+RESOURCE-ORIENTED DESIGN
+- URLs should name resources (nouns), not actions: /api/superheroes not /api/getSuperheroes.
+- Collection vs item: GET /api/superheroes (list) vs GET /api/superheroes/{id} (single item).
+- Nested resources for clear ownership: POST /api/missions/{id}/start reads naturally as "start this specific mission".
+- Plural resource names by convention (/superheroes, not /superhero).
+
+HTTP VERBS & IDEMPOTENCY
+- GET: read, safe (no side effects), idempotent, cacheable.
+- POST: create (or trigger an action, like /battles/simulate), NOT idempotent — calling it twice creates two things (or runs the simulation twice).
+- PUT: full replace of a resource, idempotent — calling it twice with the same body yields the same end state.
+- PATCH: partial update, not necessarily idempotent depending on the semantics used.
+- DELETE: remove a resource, idempotent (deleting an already-deleted resource is still "gone" — though the second call may 404 instead of 204, which is a reasonable API design choice either way).
+
+STATUS CODES
+- 200 OK: successful GET/PUT/PATCH with a response body.
+- 201 Created: successful POST that created a resource — include a Location header pointing to the new resource.
+- 204 No Content: successful request with no body to return (common for DELETE).
+- 400 Bad Request: malformed request or failed validation.
+- 401 Unauthorized: missing/invalid authentication (you don't know who this is).
+- 403 Forbidden: authenticated, but not allowed to perform this action (role/permission issue).
+- 404 Not Found: resource doesn't exist.
+- 409 Conflict: request conflicts with current state (e.g. duplicate username on register).
+- 500 Internal Server Error: unhandled server-side failure — should be rare and always logged.
+
+PAGINATION, FILTERING, SORTING
+- Query-string based pagination: ?page=1&pageSize=10 (offset-based, simple, fine for most admin/UI use cases at this scale). Cursor-based pagination scales better for huge/real-time-changing datasets but adds complexity — offset pagination is the pragmatic choice here.
+- Filtering via query params: ?universe=DC&alignment=Hero&minPower=70 — each filter optional, combined server-side.
+- Sorting via a dedicated param: ?sortBy=powerLevel&sortDir=desc — validate against an allow-list of sortable columns to avoid SQL injection via dynamic ORDER BY.
+- Always return total count (and/or total pages) alongside a paged result so the client can render pagination controls.
+
+VERSIONING
+- URL versioning (/api/v1/superheroes) is the simplest and most visible approach; header-based versioning (Accept: application/vnd.api.v1+json) is more "correct" REST but less discoverable.
+- Version only when you have a breaking change to make — don't version prematurely.
+
+CONSISTENT ERROR RESPONSES
+- Return the same error shape everywhere: { statusCode, message, timestamp, (optional) details/errors[] } — makes frontend error handling generic instead of per-endpoint.
+- Validation errors should indicate which field(s) failed and why, not just a generic "Bad Request".
+
+STATELESSNESS
+- Each request must contain everything needed to process it (e.g. the JWT) — the server shouldn't rely on server-side session state between requests, which is what makes REST APIs horizontally scalable.
+
+HATEOAS (AWARENESS, NOT ALWAYS PRACTICAL)
+- Hypermedia As The Engine Of Application State — responses include links to related/next actions (e.g. a Battle response links to /api/superheroes/{winnerId}).
+- Rarely fully implemented in real-world APIs at this scale — good to know conceptually for interviews, not mandatory to build.
+
+RATE LIMITING (AWARENESS)
+- Protects the API from abuse/overload — typically implemented via middleware (ASP.NET Core has built-in rate limiting middleware since .NET 7) using a fixed window, sliding window, or token bucket algorithm.
+
+COMMON INTERVIEW QUESTIONS TO BE READY FOR
+- Explain idempotency and which HTTP verbs are idempotent.
+- How would you design pagination for a large, frequently-changing list?
+- What's the difference between 401 and 403, with an example of each?
+- How do you keep an API backward-compatible, and when do you actually need to version it?
+- Why does statelessness matter for scaling an API horizontally?
