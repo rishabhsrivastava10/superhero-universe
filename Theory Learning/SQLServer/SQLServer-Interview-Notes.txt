@@ -44,6 +44,10 @@ WINDOW FUNCTIONS
 - ROW_NUMBER(), RANK(), DENSE_RANK() OVER (ORDER BY PowerLevel DESC) — ideal for building rankings (e.g. "Top 10 heroes by power level") without a self-join or subquery.
 - PARTITION BY divides rows into groups before the window function is applied — e.g. rank heroes separately within each Universe.
 
+AGGREGATING TEXT ACROSS ROWS (STRING_AGG)
+- STRING_AGG(column, separator) concatenates a column's values across rows into one delimited string (e.g. all powers for a hero into "Flight, Super Speed, ...") — very useful for read-model/API projections.
+- Gotcha learned while building this project's schema: unlike COUNT/SUM, STRING_AGG does NOT support a DISTINCT argument (STRING_AGG(DISTINCT x, ', ') is a syntax error - "Incorrect syntax near ','") even on current SQL Server versions. If a join fans out into duplicate values (e.g. joining both Powers and Teams onto the same Superhero row at once), aggregate each relationship in its own correlated subquery/CTE instead of one flat multi-join query - that avoids the duplication in the first place rather than needing DISTINCT to clean it up afterward.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - Explain normalization briefly, and give an example of when you'd deliberately denormalize.
 - Difference between a clustered and non-clustered index.
