@@ -10,4 +10,5 @@ public class ModelUser
     public bool IsActive { get; set; }
 
     public ICollection<ModelUserRole> UserRoles { get; set; } = [];
+    public ICollection<ModelRefreshToken> RefreshTokens { get; set; } = [];
 }

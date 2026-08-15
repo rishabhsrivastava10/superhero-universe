@@ -352,3 +352,50 @@ END;
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815111652_AddRefreshTokens'
+)
+BEGIN
+    CREATE TABLE [xtRefreshTokens] (
+        [Id] int NOT NULL IDENTITY,
+        [UserId] int NOT NULL,
+        [Token] nvarchar(200) NOT NULL,
+        [ExpiresAt] datetime2(3) NOT NULL,
+        [CreatedAt] datetime2(3) NOT NULL,
+        [RevokedAt] datetime2(3) NULL,
+        [ReplacedByToken] nvarchar(200) NULL,
+        CONSTRAINT [PK_xtRefreshTokens] PRIMARY KEY ([Id]),
+        CONSTRAINT [FK_xtRefreshTokens_xtUsers] FOREIGN KEY ([UserId]) REFERENCES [xtUsers] ([Id]) ON DELETE CASCADE
+    );
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815111652_AddRefreshTokens'
+)
+BEGIN
+    CREATE INDEX [IX_xtRefreshTokens_UserId] ON [xtRefreshTokens] ([UserId]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815111652_AddRefreshTokens'
+)
+BEGIN
+    CREATE UNIQUE INDEX [UQ_xtRefreshTokens_Token] ON [xtRefreshTokens] ([Token]);
+END;
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20260815111652_AddRefreshTokens'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20260815111652_AddRefreshTokens', N'10.0.11');
+END;
+
+COMMIT;
+GO
+

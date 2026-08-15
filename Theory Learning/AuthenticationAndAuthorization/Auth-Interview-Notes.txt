@@ -38,6 +38,18 @@ SECURITY PITFALLS TO AVOID
 - Rate-limit and log failed login attempts to detect brute-force attempts.
 - HTTPS everywhere — a JWT sent over plain HTTP can be intercepted.
 
+CLAIM MAPPING GOTCHA (LEARNED BUILDING THIS PROJECT)
+- .NET's JwtSecurityTokenHandler has MapInboundClaims = true by DEFAULT. On validation it silently rewrites standard JWT claim names into legacy WS-Federation URIs: "sub" becomes ClaimTypes.NameIdentifier ("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"), "email" becomes ClaimTypes.Email, and so on.
+- Consequence: you issue a token containing "sub", then principal.FindFirst("sub") returns NULL after validation, because the claim is no longer called "sub". This silently broke the refresh-token flow in this project - every refresh returned 401 until it was traced back to the mapping.
+- Fixes: `new JwtSecurityTokenHandler { MapInboundClaims = false }` (local, explicit, preferred), or `JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear()` (global static - affects the whole app).
+- Beware there is also an OUTBOUND map (DefaultOutboundClaimTypeMap) that rewrites claim types when WRITING a token. If you disable inbound mapping you must check that TokenValidationParameters.RoleClaimType / NameClaimType still line up with the claim names actually present in the token, or [Authorize(Roles = "...")] silently stops matching.
+- Defensive habit: when reading an identity claim, check both the standard name and the mapped one, e.g. FindFirst(JwtRegisteredClaimNames.Sub) ?? FindFirst(ClaimTypes.NameIdentifier).
+
+401 vs 403 IN PRACTICE
+- Anonymous request to a protected endpoint -> 401 Unauthorized (we don't know who you are).
+- Authenticated user lacking the required role -> 403 Forbidden (we know who you are; you're not allowed).
+- ASP.NET Core produces this distinction automatically once authentication and authorization middleware are both registered, in that order. Worth verifying BOTH directions in tests - a role check that wrongly denies everyone still passes a "non-admin is rejected" test, so also assert that an admin genuinely gets 200.
+
 COMMON INTERVIEW QUESTIONS TO BE READY FOR
 - Walk through what happens end-to-end from login to an authorized API call using JWT.
 - Why can't you revoke a JWT access token before it expires, and how do refresh tokens help mitigate that?

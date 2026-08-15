@@ -16,6 +16,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<ModelMission> Missions => Set<ModelMission>();
     public DbSet<ModelMissionHero> MissionHeroes => Set<ModelMissionHero>();
     public DbSet<ModelBattle> Battles => Set<ModelBattle>();
+    public DbSet<ModelRefreshToken> RefreshTokens => Set<ModelRefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,6 +33,23 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.CreatedAt).HasPrecision(3);
             entity.HasIndex(e => e.Username).IsUnique().HasDatabaseName("UQ_xtUsers_Username");
             entity.HasIndex(e => e.Email).IsUnique().HasDatabaseName("UQ_xtUsers_Email");
+        });
+
+        modelBuilder.Entity<ModelRefreshToken>(entity =>
+        {
+            entity.ToTable("xtRefreshTokens");
+            entity.HasKey(e => e.Id).HasName("PK_xtRefreshTokens");
+            entity.Property(e => e.Token).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.ReplacedByToken).HasMaxLength(200);
+            entity.Property(e => e.ExpiresAt).HasPrecision(3);
+            entity.Property(e => e.CreatedAt).HasPrecision(3);
+            entity.Property(e => e.RevokedAt).HasPrecision(3);
+            // IsActive is derived in C# from RevokedAt/ExpiresAt - it is not a column.
+            entity.Ignore(e => e.IsActive);
+            entity.HasOne(e => e.User).WithMany(u => u.RefreshTokens)
+                .HasForeignKey(e => e.UserId).HasConstraintName("FK_xtRefreshTokens_xtUsers").OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.Token).IsUnique().HasDatabaseName("UQ_xtRefreshTokens_Token");
+            entity.HasIndex(e => e.UserId).HasDatabaseName("IX_xtRefreshTokens_UserId");
         });
 
         modelBuilder.Entity<ModelRole>(entity =>
